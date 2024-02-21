@@ -1,0 +1,18 @@
+Package: JSDNE
+Title: Estimating the age using auricular surface by DNE
+Version: 4.2.2
+Authors@R: 
+    person("Jisun", "Jang", email="jisun.jang.19@ucl.ac.uk", role = c("aut", "cre"))
+Maintainer: Jisun Jang <jisun.jang.19@ucl.ac.uk>
+Description: The package automatically estimates the age by calculating the DNE on the whole auricular surface and the apex of the auricular surface. It involves three estimation methods: DNE_PCQDA, DNE_PCR, and DNE_PCLR methods. The package is created with the data from the Louis Lopes collection in Lisbon, the 21st Century Identified Human Remains Collection in Coimbra, and the CAL Milano Cemetery Skeletal Collection in Milan. 
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Depends: R (>= 2.10)
+LazyData: true
+Imports: dplyr, MASS, molaR, nnet, Rvcg
+NeedsCompilation: no
+Packaged: 2024-02-21 09:12:31 UTC; jangj
+Author: Jisun Jang [aut, cre]
+Built: R 4.2.2; ; 2024-02-21 09:12:32 UTC; windows

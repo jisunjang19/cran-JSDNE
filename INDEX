@@ -1,0 +1,6 @@
+PCLR_result             Estimating the age using DNE_PCLR method
+PCQDA_result            Estimating the age using DNE_PCQDA method
+PCR_result              Estimating the age using PCR method
+data_PCLR               Database to create DNE_PCLR method
+data_PCQDA              Databases to create DNE_PCQDA method.
+data_PCR                Database to create DNE_PCR method
