@@ -1,6 +1,3 @@
----
-output: github_document
----
 
 # JSDNE
 
@@ -67,14 +64,14 @@ The raw data obtained the findings of this study are openly available at https:/
 
 The raw datas of this study (RawData, PCLR_Train, PCLR_Test, PCQDA_Test, PCQDA_Train, PCR_Train, and PCR_Test) could be loaded with JSDNE package. For example,
 
-```{r}
+```r
 library(JSDNE)
 data(RawData)
 ```
 
 All of the data preparation and anlysis in the source code_Manuscript could be re-runed. For example, 
 
-```{r}
+```r
 PCQDA_data <-
   subset(
     RawData,
@@ -101,7 +98,7 @@ You can install the development version of JSDNE like so: install.packages("JSDN
 
 ## Example of using JSDNE package
 
-```{r}
+```r
 library(JSDNE)
 PCQDA_result(WholeSurface,Apex)
 PCLR_result(WholeSurface,Apex)
