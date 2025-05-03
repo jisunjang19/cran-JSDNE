@@ -12,7 +12,6 @@
 📂 [man](/man) contains the description and example of the code and data\
   ⊢ 📄 [Apex.Rd](/man/Apex.Rd)\
   ⊢ 📄 [WholeSurface.Rd](/man/WholeSurface.Rd)\
-  ⊢ 📄 [RawData.Rd](/man/RawData.Rd)\
   ⊢ 📄 [PCLR_Test.Rd](/man/PCLR_Test.Rd)\
   ⊢ 📄 [PCLR_Train.Rd](/man/PCLR_Train.Rd)\
   ⊢ 📄 [PCLR_result.Rd](/man/PCLR_result.Rd)\
@@ -22,11 +21,16 @@
   ⊢ 📄 [PCQDA_Test.Rd](/man/PCQDA_Test.Rd)\
   ⊢ 📄 [PCQDA_Train.Rd](/man/PCQDA_Train.Rd)\
   ⊢ 📄 [PCQDA_result.Rd](/man/PCQDA_result.Rd)\
+  ⊢ 📄 [A_PCR_Test.Rd](/man/PCR_Test.Rd)\
+  ⊢ 📄 [A_PCR_Train.Rd](/man/PCR_Train.Rd)\
+  ⊢ 📄 [A_PCR_result.Rd](/man/PCR_result.Rd)\
+  ⊢ 📄 [A_PCR_Test.Rd](/man/PCR_Test.Rd)\
+  ⊢ 📄 [M_PCR_Train.Rd](/man/PCR_Train.Rd)\
+  ⊢ 📄 [M_PCR_result.Rd](/man/PCR_result.Rd)\
 
 📂 [data](/data) contains the raw data to develop the models and obtain the findings in the manuscript, and example 3D models\
   ⊢ 📄 [Apex.rda](/data/Apex.rda) is the loaded example data of apex\
   ⊢ 📄 [WholeSurface.rda](/data/WholeSurface.rda)is loaded example data of Whole surface\
-  ⊢ 📄 [RawData.rda](/data/RawData.rda)\
   ⊢ 📄 [PCLR_Test.rda](/data/PCLR_Test.rda)\
   ⊢ 📄 [PCLR_Train.rda](/data/PCLR_Train.rda)\
   ⊢ 📄 [PCR_Test.rda](/data/PCR_Test.rda)\ 
@@ -35,6 +39,10 @@
   ⊢ 📄 [PCQDA_Train.rda](/data/PCQDA_Train.rda)\
   ⊢ 📄 [PCQDA_Test.rda](/data/PCQDA_Test.rda)\
   ⊢ 📄 [PCLR_Train.rda](/data/PCLR_Train.rda)\
+  ⊢ 📄 [A_PCR_Test.rda](/data/PCR_Test.rda)\ 
+  ⊢ 📄 [A_PCR_Train.rda](/data/PCR_Train.rda)\
+  ⊢ 📄 [M_PCR_Test.rda](/data/PCR_Test.rda)\ 
+  ⊢ 📄 [M_PCR_Train.rda](/data/PCR_Train.rda)\
 
 
 📂 [R](/R) contains code for developing the age estimation models, the example 3D models, and raw data to develop the estimation models\
@@ -44,12 +52,18 @@
   ⊢ 📄 [PCLR_Train.R](/R/PCLR_Train.R)\
   ⊢ 📄 [PCR_Test.R](/R/PCR_Test.R)\ 
   ⊢ 📄 [PCR_Train.R](/R/PCR_Train.R)\ 
+  ⊢ 📄 [A_PCR_Test.R](/R/PCR_Test.R)\ 
+  ⊢ 📄 [A_PCR_Train.R](/R/PCR_Train.R)\ 
+  ⊢ 📄 [M_PCR_Test.R](/R/PCR_Test.R)\ 
+  ⊢ 📄 [M_PCR_Train.R](/R/PCR_Train.R)\ 
   ⊢ 📄 [PCQDA_Test.R](/R/PCQDA_Test.R)\ 
   ⊢ 📄 [PCQDA_Train.R](/R/PCQDA_Train.R)\ 
   ⊢ 📄 [PCQDA_Test.R](/R/PCQDA_Test.R)\
   ⊢ 📄 [PCLR_Train.R](/R/PCLR_Train.R)\
   ⊢ 📄 [PCLR_result.R](/R/PCLR_result.R) is the PCLR model for age estimation\
   ⊢ 📄 [PCR_result.R](/R/PCR_result.R) is the PCR model for age estimation
+  ⊢ 📄 [A_PCR_result.R](/R/PCR_result.R) is the A_PCR model for age estimation
+  ⊢ 📄 [M_PCR_result.R](/R/PCR_result.R) is the M_PCR model for age estimation
   ⊢ 📄 [PCQDA_result.R](/R/PCQDA_result.R) is the PCQDA model for age estimation\
 
 📂 [Jang et al.(2024)_JAS](/Jang et al.(2024)_JAS) contains the source code of Jang et al. (2024) published at Journal of Archaeological Science\
@@ -100,18 +114,6 @@ data(PCLR_Train)
 All of the data preparation and anlysis in the source code_Manuscript could be re-runed. For example, 
 
 ``` r
-PCQDA_data <-
-  subset(
-    RawData,
-    select = c(
-      Cluster2,
-      Age,
-      MeanDNE.Apex,
-      TotalDNE.TotalPolygonFaces,
-      Proportion.DNEunder0.0001,
-      Proportion.DNEover0.6
-    )
-  )
 model_PCQDA <- subset(PCQDA_Train, select = -c(Cluster2, Age))
 PCQDA_df <- scale(model_PCQDA)
 PCQDA_df.pca <- prcomp(PCQDA_df)
