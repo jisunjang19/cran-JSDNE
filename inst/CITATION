@@ -1,0 +1,15 @@
+citEntry(
+  entry = "Article",
+  title = "‘JSDNE’: A novel R package for estimating age quantitatively with the auricular surface by Dirichlet normal energy",
+  author = c(
+    person("J.", "Jang", role = "aut"),
+    person("E.", "Mariconti", role = "aut"),
+    person("R.", "Watts", role = "aut")
+  ),
+  journal = "Journal of Archaeological Science",
+  year = 2024,
+  volume = "171",
+  pages = "106080",
+  doi = "10.1016/j.jas.2024.106080",
+  textVersion = "Jang, J., Mariconti, E., and Watts, R. (2024). ‘JSDNE’: A novel R package for estimating age quantitatively with the auricular surface by Dirichlet normal energy. *Journal of Archaeological Science*, 171, 106080. https://doi.org/10.1016/j.jas.2024.106080"
+)
