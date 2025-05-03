@@ -70,15 +70,27 @@
 
 ## Abstract
 
-The goal of JSDNE is to estimate the age with the auricular surface. Widely-used traditional age estimation methods involving macroscopic observation suffer from subjectivity. The present package aims to minimize both issues by applying computational and mathematical approaches. Dirichlet Normal Energy (DNE) was applied to assess the curvature of the 3D reconstructed auricular surface models. Ten DNE variables had high correlations, including total DNE per Total polygon faces, Mean value of DNE on apex, proportion of polygon faces with DNE of less than 0.0001 and proportion of polygon faces with DNE of over 0.6. JSDNE includes five functions: principal component quadratic discriminant analysis (PCQDA), principal component regression analysis (PCR), principal component logistic regression analysis with European (PCLR), principal component logistic regression analysis with Southeast Asian (A_PCLR), and principal component logistic regression analysis with multi-population (M_PCLR). JSDNE predicts age mathematically, objectively, and user-independently. The PCQDA function involves four age phases: phase 1(22-44yrs), phase 2(31-74yrs), phase 3(63-93yrs), and phase 4 (Over 76). The PCLR function has two age phases: phase 1 (under 67), phase 2(over 63)). It offers an output of estimated age phase and the age range. Both functions provides an output of estimated age phase and the age range. The PCR, A_PCR, and M_PCR functions provide an output of estimated age in years and the standard error (8.8yrs, 9.0 yrs, and 10.2 yrs, respectively). 
+The goal of JSDNE is to estimate the age with the auricular surface. Widely-used traditional age estimation methods involving macroscopic 
+observation suffer from subjectivity. The present package aims to minimize both issues by applying computational and mathematical approaches.
+Dirichlet Normal Energy (DNE) was applied to assess the curvature of the 3D reconstructed auricular surface models. Ten DNE variables had high 
+correlations, including total DNE per Total polygon faces, Mean value of DNE on apex, proportion of polygon faces with DNE of less than 0.0001 
+and proportion of polygon faces with DNE of over 0.6. JSDNE includes five functions: principal component quadratic discriminant analysis (PCQDA),
+principal component regression analysis (PCR), principal component logistic regression analysis with European (PCLR), principal component 
+logistic regression analysis with Southeast Asian (A_PCLR), and principal component logistic regression analysis with multi-population (M_PCLR). 
+JSDNE predicts age mathematically, objectively, and user-independently. The PCQDA function involves four age phases: phase 1(22-44yrs), 
+phase 2(31-74yrs), phase 3(63-93yrs), and phase 4 (Over 76). The PCLR function has two age phases: phase 1 (under 67), phase 2(over 63)). It offers
+an output of estimated age phase and the age range. Both functions provides an output of estimated age phase and the age range. The PCR, A_PCR, 
+and M_PCR functions provide an output of estimated age in years and the standard error (8.8yrs, 9.0 yrs, and 10.2 yrs, respectively). 
 
 ## Data availability
 
-The raw data obtained the findings of this study are openly available at https://github.com/jisunjang19/cran-JSDNE, doi: 10.5281/zenodo.12708779 or ‘JSDNE’ package
+The raw data obtained the findings of this study are openly available at https://github.com/jisunjang19/cran-JSDNE, doi: 10.5281/zenodo.12708779 
+or ‘JSDNE’ package
 
 ## Replicate analysis
 
-The raw datas of this study (PCLR_Train, PCLR_Test, PCQDA_Test, PCQDA_Train, PCR_Train, PCR_Test, A_PCR_Train, A_PCR_Test, M_PCR_Train, and M_PCR_Test) could be loaded with JSDNE package. For example,
+The raw datas of this study (PCLR_Train, PCLR_Test, PCQDA_Test, PCQDA_Train, PCR_Train, PCR_Test, A_PCR_Train, A_PCR_Test, M_PCR_Train, and M_PCR_Test)
+could be loaded with JSDNE package. For example,
 
 ```r
 library(JSDNE)
@@ -123,9 +135,11 @@ A_PCR_result(WholeSurface,Apex)
 M_PCR_result(WholeSurface,Apex)
 ```
 
-1. When importing the .ply files, I highly recommend use the vcgPlyRead function. If use different function to import the ply files, the function might not be able to read correctly. 
+1. When importing the .ply files, I highly recommend use the vcgPlyRead function. If use different function to import the ply files, 
+the function might not be able to read correctly. 
 
-2. After importing the .ply files with the vcgPlyRead function, the auricular surface .ply file should be replaced with x and the apical area with y. If oppositely applied, incorrect results will be calculated. It is recommended to check the location of both ply file.
+2. After importing the .ply files with the vcgPlyRead function, the auricular surface .ply file should be replaced with x and the apical 
+area with y. If oppositely applied, incorrect results will be calculated. It is recommended to check the location of both ply file.
 
 
 
