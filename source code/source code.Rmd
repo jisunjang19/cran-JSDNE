@@ -119,16 +119,16 @@ surfaces, without taphonomic damage or pathological conditions (Table 1).
 
 ```{r, warning = FALSE, message = FALSE}
 library(JSDNE)
-data("ThaiData.csv")
-data("A_PCR_Test.csv")
-data("A_PCR_Train.csv")
-data("M_PCR_Test.csv")
-data("M_PCR_Train.csv")
-data("TrendLine.csv")
-data("Distribution.csv")
-data("MultiData.csv")
-data("FirstObservation")
-data("SecondObervation")
+ThaiData<-read.csv("ThaiData.csv")
+A_PCR_Test<-read.csv("A_PCR_Test.csv")
+A_PCR_Train<-read.csv("A_PCR_Train.csv")
+M_PCR_Test<-read.csv("M_PCR_Test.csv")
+M_PCR_Train<-read.csv("M_PCR_Train.csv")
+TrendLine<-read.csv("TrendLine.csv")
+Distribution<-read.csv("Distribution.csv")
+Multidata<-read.csv("MultiData.csv")
+FirstObservation<-read.csv("FirstObservation")
+SecondObservation<-read.csv("SecondObservation")
 ```
 
 ```{r, warning = FALSE, message = FALSE}
@@ -175,7 +175,7 @@ summary_with_total %>%
   collapse_rows(columns = 1, valign = "top")
 
 ```
-Table 1. The number of auricular surfaces by populations. N number of individuals
+Table 1. The number of auricular surfaces by populations.
 
 ### Methods
 
@@ -255,9 +255,7 @@ exhibited a strong negative correlation (r = -0.675), representing the only vari
 
 ```{r, warning = FALSE, message = FALSE}
 library(corrtable)
-Variables<-subset(ThaiData,select=-c(PCQDA_pred,
-                                     PCQDA_Mean, PCR_pred, 
-                                     PCLR_pred, PCLR_Mean))
+Variables<-subset(ThaiData,select=-c(PCQDA_Estimated,PCR_pred,PCLR_pred))
 cor<-data.frame(correlation_matrix(Variables, 
                                    digits=3,replace_diagonal = TRUE))
 CorTable<-subset(cor,select=c(Age.))
@@ -299,74 +297,74 @@ library(ggpubr)
 library(scales)
 
 g1 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = MeanDNE.Apex)) 
-+ xlab("") + ylab("") + theme(legend.position = "none") 
-+ scale_x_continuous(limit = c(20, 100)) 
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) + 
+  geom_point(aes(x = Age, y = MeanDNE.Apex)) + 
+  xlab("") + ylab("") + theme(legend.position = "none") + 
+  scale_x_continuous(limit = c(20, 100)) + 
+  scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g2 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = MedianDNE.Apex)) 
-+ xlab("") + ylab("") + theme(legend.position = "none") 
-+ scale_x_continuous(limit = c(20, 100)) 
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = MedianDNE.Apex)) +
+ xlab("") + ylab("") + theme(legend.position = "none") +
+ scale_x_continuous(limit = c(20, 100)) +
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g3 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = IQRDNE.Apex)) 
-+ xlab("") + ylab("") + theme(legend.position ="none") 
-+ scale_x_continuous(limit = c(20, 100))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = IQRDNE.Apex)) +
+ xlab("") + ylab("") + theme(legend.position ="none") +
+ scale_x_continuous(limit = c(20, 100))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g4 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = TotalDNE.TotalPolygonFaces)) 
-+ xlab("") + ylab("") + theme(legend.position ="none") 
-+ scale_x_continuous(limit = c(20, 100))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = TotalDNE.TotalPolygonFaces)) +
+ xlab("") + ylab("") + theme(legend.position ="none") +
+ scale_x_continuous(limit = c(20, 100))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g5 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = MedianDNE.Whole)) 
-+ xlab("") + ylab("") + theme(legend.position ="none") 
-+ scale_x_continuous(limit = c(20, 100))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = MedianDNE.Whole)) +
+ xlab("") + ylab("") + theme(legend.position ="none") +
+ scale_x_continuous(limit = c(20, 100))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g6 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = IQRDNE.Whole)) 
-+ xlab("") + ylab("") + theme(legend.position ="none") 
-+ scale_x_continuous(limit = c(20, 100))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = IQRDNE.Whole)) +
+ xlab("") + ylab("") + theme(legend.position ="none") +
+ scale_x_continuous(limit = c(20, 100))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g7 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = MeanDNE.Convex)) 
-+ xlab("") + ylab("") + theme(legend.position = "none") 
-+ scale_x_continuous(limit = c(20, 100)) 
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = MeanDNE.Convex)) +
+ xlab("") + ylab("") + theme(legend.position = "none") +
+ scale_x_continuous(limit = c(20, 100)) +
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g8 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = MeanDNE.Concave)) 
-+ xlab("") + ylab("") + theme(legend.position = "none") 
-+ scale_x_continuous(limit = c(20, 100)) 
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = MeanDNE.Concave)) +
+ xlab("") + ylab("") + theme(legend.position = "none") +
+ scale_x_continuous(limit = c(20, 100)) +
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g9 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = Proportion.DNEunder0.0001)) 
-+ xlab("") + ylab("") + theme(legend.position ="none") 
-+ scale_x_continuous(limit = c(20, 100))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = Proportion.DNEunder0.0001)) +
+ xlab("") + ylab("") + theme(legend.position ="none") +
+ scale_x_continuous(limit = c(20, 100))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 g10 <-
-  ggplot(data = Variables) 
-+ geom_point(aes(x = Age, y = Proportion.DNEover0.6)) 
-+ xlab("") + ylab("") + theme(legend.position = "none") 
-+ scale_x_continuous(limit = c(20, 100))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001))
+  ggplot(data = Variables) +
+ geom_point(aes(x = Age, y = Proportion.DNEover0.6)) +
+ xlab("") + ylab("") + theme(legend.position = "none") +
+ scale_x_continuous(limit = c(20, 100))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001))
 
 ggarrange(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10, 
           labels = c("(a)", "(b)","(c)","(d)","(e)","(f)",
@@ -388,74 +386,74 @@ faces with DNE of less than 0.0001 shows the reversed trend (Figure 3).
 
 ```{r, warning = FALSE, message = FALSE, fig.height = 10}
 t1 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Apex, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Apex, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t2 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= MedianDNE.Apex, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= MedianDNE.Apex, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t3 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= IQRDNE.Apex, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= IQRDNE.Apex, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t4 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= TotalDNE.TotalPolygonFaces, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= TotalDNE.TotalPolygonFaces, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t5 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= MedianDNE.Whole, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= MedianDNE.Whole, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t6 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= IQRDNE.Whole, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= IQRDNE.Whole, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t7 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Convex, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Convex, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t8 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Concave, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Concave, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t9 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= Proportion.DNEunder0.0001, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= Proportion.DNEunder0.0001, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001)) +
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 t10 <-
-  ggplot(data = TrendLine) 
-+  geom_smooth(mapping=aes(x=Age, y= Proportion.DNEover0.6, color=Population), 
-               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
-+ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
-+ xlab("") + ylab("") + theme(legend.position = "none")
+  ggplot(data = TrendLine) +
+  geom_smooth(mapping=aes(x=Age, y= Proportion.DNEover0.6, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))+
+ scale_y_continuous(labels = number_format(accuracy = 0.001))+ 
+ xlab("") + ylab("") + theme(legend.position = "none")
 
 ggarrange(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10,
           labels = c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)", 
@@ -469,9 +467,6 @@ g_all <- ggarrange(
   hjust = 0.05, ncol = 2, nrow = 5,
   common.legend = TRUE, legend = "bottom"
 )
-
-ggsave("D:/TrendLine_Plots.png", g_all, 
-       width = 8, height = 24, dpi = 600, units = "in")
 
 ```
 Figure 3. Trend line for curvature variables and known age-at-death. Red line = European sample; Green 
@@ -771,6 +766,8 @@ C_European_result <- data.frame(
   Bias = c(-0.3, 10.8, 11.5, 6.7, 0.4, -6.4, -5.6, -7.9),
   AAD. = c(9.6, 11.6, 16.0, 8.9, 3.0, 11.0, 10.1, 8.1)
 )
+
+C_PCQDATable <- cbind(C_European_result,C_Total_Test3)
 
 C_PCQDATable <-
   subset(C_PCQDATable, select = -c(Var.5))
@@ -1460,7 +1457,7 @@ M_PCR_result <- data.frame(M_PCR_pred, M_PCR_Test$Age)
 KK=length(M_PCR$coefficients)-1
 SSE=sum(M_PCR$residuals**2)
 NK=length(M_PCR$residuals)
-sqrt(SSE/(NK-(1+KK)))
+round(sqrt(SSE/(NK-(1+KK))),1)
 ```
 
 ```{r, warning = FALSE, message = FALSE}
