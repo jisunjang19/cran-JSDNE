@@ -1,0 +1,2020 @@
+---
+title: 'Testing the population affinity and revising the ‘JSDNE’ R package with Southeast Asian population'
+  
+  
+author: "Jisun Jang, Enrico Mariconti, Rebecca Watts"
+
+date: "2025-05-01"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Abstract
+
+Age estimation is a key component in constructing the biological profile of the deceased, playing a vital role 
+in forensic anthropology and bioarchaeology. Jang et al. (2024b) developed the JSDNE R package, incorporating 
+three models: PCQDA, PCR, and PCLR. This method quantitatively assesses curvature on reconstructed auricular 
+surfaces using Dirichlet Normal Energy (DNE). All three models demonstrated high accuracy across age cohorts. 
+However, the JSDNE package was developed using modern European skeletal samples, raising concerns about statistical 
+bias. This study evaluates the population affinity of the JSDNE package with the Southeast Asian sample and 
+compares degenerative patterns across populations. 335 adult auricular surfaces in the Khon Kaen University 
+(KKU) Human Skeletal Research Centre (HSRC), Thailand, were reconstructed into 3D models. The PCQDA, PCR, and 
+PCLR models produced accuracy levels of 64%, 35%, and 66%, respectively. Due to different degenerative patterns 
+and a narrow age range, the PCR model displayed distinct population affinity. To address this, the JSDNE package 
+was refined by developing the A_PCR model with Southeast Asian samples and the M_PCR model with multi-populational 
+datasets. The A_PCR and the M_PCR models achieved 69% and 67% accuracy for the Southeast Asian sample. The M_PCR 
+model provides 60% accuracy for the European sample. The detailed code of this study is openly available 
+at https://github.com/jisunjang19/cran-JSDNE or doi: 10.5281/zenodo.12708779.
+
+
+### Introduction
+Age estimation plays a fundamental role in constructing the biological profile of human remains. In bioarchaeology,
+this profile serves as the basis for reconstructing the past population’s life histories. In forensic anthropology,
+biological profiles are crucial for identifying unknown individuals, particularly in cases involving missing persons,
+mass disasters, crimes, and violent offences (Márquez-Grant, 2015; Moraitis et al., 2014; Rissech et al., 2012). 
+Methods for estimating age rely on observing skeletal changes that occur throughout an individual’s life 
+(Byers, 2017). These changes are classified into developmental and degenerative (Moraitis et al., 2014). Developmental
+changes, such as epiphyseal fusion (Schmeling et al., 2004) and tooth eruption (Kumar and Sridhar, 1990), are 
+used for subadult age estimation. In contrast, adult age estimation depends on assessing degenerative features 
+(Schwartz, 1995), including the pubic symphysis (Brooks and Suchey, 1990), sternal rib ends (Işcan et al., 1984),
+and the auricular surface (Lovejoy et al., 1985). The auricular surface is considered a particularly valuable age
+indicator due to its durability and resistance to decomposition (Rivera-Sandoval et al., 2018). Degeneration continues
+beyond 60 years old, making it a more reliable age indicator for older adults than other bones (Rissech et al., 2012).
+However, the traditional age estimation method for adults is complex and imprecise. Intrinsic and extrinsic factors,
+such as genetics, culture, and environment, contribute to the degenerative process complexly throughout life 
+(Miranker, 2016). Therefore, morphological features and the degree of degeneration vary depending on geographical
+information. Since age estimation methods are developed based on specific populations, applying them to different
+populations can introduce bias. The accuracy of estimated ages is influenced by the age distribution of individuals
+in the reference sample, a phenomenon known as age structure mimicry (Mensforth, 1990:90). As a result, statistical
+bias negatively affects both reliability and accuracy. Thus, the method should be tested for population affinity
+(Botha et al., 2019; Curate et al., 2022). 
+Virtual anthropology has recently gained prominence with advancements in computational imaging techniques, such as 
+computed tomography and laser scanning (Warrier et al., 2023). These technologies enable a mathematical approach to
+detect subtle surface changes and extract complex visual details beyond macroscopic observation 
+(Zhang et al., 2022; Warrier et al., 2023). Additionally, they minimize user dependency, ensuring that results are
+objective, reproducible, and repeatable (Zhang et al., 2022). Curvature analysis of bone surfaces is the most widely
+applied mathematical approach. This technique evaluates surface irregularity and flatness (Villa et al., 2015).
+Villa et al. (2015) employed Gaussian curvature analysis to explore the age correlations with five curvature 
+variables: mean, highest, lowest, convex, and flat curvatures. The variables have moderate correlations. The young
+and older individuals exhibited higher curvature values than middle-aged individuals. These were attributed to transverse
+organisation and macroporosity, respectively. Even though the study only showed correlations, it demonstrated a new 
+approach to developing the age estimation method with curvature analysis (Villa et al., 2015). 
+Štepanovský et al. (2023) developed CoxAGE3D, an automated age estimation software that analyses 3D-reconstructed
+auricular surfaces. The software employs automatic data mining with multi-linear regression and principal component
+analysis to estimate age. It shows a moderate correlation (r = 0.56) with known ages and an average inaccuracy of 
+12.4 years (ranging from 10.3 to 14.2 years across populations). It is argued that the use of a multi-populational 
+dataset, including samples from Portugal, Switzerland, Thailand, Greece, and Lithuania, is to minimise statistical 
+bias. Also, the automation process reduces subjectivity, enhancing consistency. The population-specific models for
+the Swiss and Thai samples had slightly higher precision (MAE = 10.6 and 10.7 years, respectively) than the 
+multipopulational model (MAE = 12.4 years). However, accuracy rates were not reported, and the method has yet to 
+undergo independent validation. 
+Jang et al. (2024a) investigated the correlations between the age phase and curvature values obtained from the 3D 
+reconstructed auricular surface. The curvature was assessed by Dirichlet Normal Energy (DNE). It is the first attempt
+to apply the DNE to observing the auricular surface. As this study used archaeological human remains, unknown 
+age-at-death, age was estimated by the Lovejoy (1985) and Buckberry-Chamberlain (2002) methods. Four features have 
+high correlations: surface undulation (transverse organisation), apical activity, macroporosity, and total DNE 
+per total number of polygon faces. Particularly, total DNE per total number of polygon faces show similar results 
+to those from Villa et al. (2015). Younger individuals had higher DNE values due to the transverse organisation, 
+whereas middle-aged individuals exhibited lower values, reflecting flatter surfaces. In contrast, older adults 
+displayed the highest DNE values due to macroporosity and apical activity (Jang et al., 2024a). 
+Jang et al. (2024b) introduced ten DNE curvature variables to reduce the subjectivity: mean value of DNE on apex, 
+median value of DNE on apex, IQR of DNE on apex, total DNE per total polygon faces, median value of DNE on whole 
+surface, IQR of DNE on whole surface, mean value of DNE on convex surface, mean value of DNE on concave surface, 
+proportion of polygon faces with DNE of less than 0.0001, and proportion of polygon faces with DNE of over 0.6. 
+It eliminated the need for ROI selection required in Jang et al. (2024a). The research was conducted with 
+known-age modern European samples. The variables had strong age correlations. Lower intra-observer error across 
+the ten DNE variables was confirmed. The JSDNE package in R Studio was developed, consisting of three statistical
+models: PCQDA, PCR, and PCLR models. PCQDA and PCLR were classification models, so they allocate age into one 
+of the age phases. It achieved 91% and 93% accuracy with broader age ranges, respectively. While PCR had lower
+accuracy (76%) and the narrowest age range (8.8 years). Further validation in diverse populations is necessary.
+The primary aim of this study is to evaluate the population affinity of the JSDNE package. It will obtain the 
+accuracy with the three models on known-age Southeast Asian samples. It also seeks to analyse differences 
+in degenerative patterns of DNE values between European and Southeast Asian samples. To enhance model applicability,
+the study will further adjust the R package by developing two models: A_PCR for the Southeast Asian sample and 
+M_PCR designed for multi-populational samples.
+
+### Materials
+The Southeast Asian sample used in this study was obtained from the Khon Kaen University (KKU) Human Skeletal 
+Research Centre (HSRC), Southeast Asia largest skeletal research collection. The collection consists of 742 
+individuals who lived and died from the 20th to the 21st century, with biological information. 97.1% (n=683) of 
+individuals (216 females and 466 males) are known age-at-death. The majority of individuals were aged over 60 years.
+The oldest individual was recorded at 109 years old (Techataweewan et al., 2017). This research used 335 auricular
+surfaces (138 females, 197 males; Table 1). The M_PCR model was used multi-populational samples, incorporating the
+four modern skeletal samples: (1) Luís Lopes Skeletal Collection curated by the National Museum of Natural History 
+and Science (MUHNAC), Lisbon, Portugal, (2) 21st Century Identified Skeletal Collection curated by the University 
+of Coimbra, Portugal, (3) CAL Milano Cemetery Skeletal Collection curated by the Laboratorio di Antropologia 
+e Odontologia Forense (LABANOF) in the Department of Biomedical Sciences for Health of the University of Milan 
+and part of the Collezione Antropologica LABANOF (CAL), Italy, (4) the skeletal collection at Khon Kaen University 
+(KKU) Human Skeletal Research Centre (HSRC), Khon Kaen, Thailand. The multi-populational sample included 
+1,225 auricular surfaces (540 females, 385 males) with known age-at-death. All individuals had well-preserved auricular
+surfaces, without taphonomic damage or pathological conditions (Table 1).
+
+```{r, warning = FALSE, message = FALSE}
+library(JSDNE)
+data("ThaiData.csv")
+data("A_PCR_Test.csv")
+data("A_PCR_Train.csv")
+data("M_PCR_Test.csv")
+data("M_PCR_Train.csv")
+data("TrendLine.csv")
+data("Distribution.csv")
+data("MultiData.csv")
+data("FirstObservation")
+data("SecondObervation")
+```
+
+```{r, warning = FALSE, message = FALSE}
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+Distribution$Decade <- cut(Distribution$Age,
+                           breaks = c(20, 30, 40, 50, 60, 70, 80, Inf),
+                           labels = c("20s", "30s", "40s", "50s", "60s", 
+                                      "70s", "Over 80"),
+                           right = FALSE)
+summary_table <- Distribution %>%
+  group_by(Population, Decade, Sex) %>%
+  summarise(N = n(), .groups = "drop") %>%
+  pivot_wider(names_from = Sex, values_from = N, values_fill = 0) %>%
+  mutate(`Total` = Female + Male) %>%
+  rename(`Female` = Female,
+         `Male` = Male) %>%
+  arrange(Population, Decade)
+
+total_row <- summary_table %>%
+  summarise(
+    Population = "Total",
+    Decade = "",
+    `Female` = sum(`Female`),
+    `Male` = sum(`Male`),
+    `Total` = sum(`Total`)
+  )
+
+summary_with_total <- bind_rows(summary_table, total_row)
+
+summary_with_total$Population <- factor(
+  summary_with_total$Population,
+  levels = c("Southeast Asian", "European", "Total")
+)
+
+summary_with_total <- summary_with_total %>%
+  arrange(Population, Decade)
+
+summary_with_total %>%
+  kbl(align = "lccr") %>%
+  kable_styling(full_width = FALSE) %>%
+  collapse_rows(columns = 1, valign = "top")
+
+```
+Table 1. The number of auricular surfaces by populations. N number of individuals
+
+### Methods
+
+#### Preparation and importing of reconstructed models
+Auricular surfaces were reconstructed using an EXScan SP laser scanner with a resolution of 1.3 megapixels. 
+Each surface was scanned from five different angles. The model generated in EXScanS_v3.1.0.1 software by merging 
+the scanned data. Then, it saved in. ply format. The apex of the auricular surface within 1 cm of both the left 
+and right sides of the terminated point of the arcuate line is manually cropped using Meshmixer. The auricular 
+surface was isolated using its outer margin as a reference, following the methodology established by 
+Jang et al. (2024a). The 3D models were imported into R Studio using the vcgPlyRead function from the Rvcg 
+package (Schlager, 2017).
+
+#### DNE
+DNE detects surface texture irregularities by measuring surface bending energy. On the flat surface, the energy 
+reached to stable state, having zero energy value (Bunn et al., 2011). In terms of mathematics, the converted 3D 
+models into polygonal meshes have two principal curvatures (v and υ) for each polygon (ρ), representing maximum 
+and minimum curvatures. The vertex of a polygon, where the principal curvatures (v and υ) intersect, generates 
+a normal vector (red arrows in Figure O1). This normal vector is calculated as the mean value of the normal vectors
+from adjacent polygons (blue lines in Figure O1). These normal vectors are aligned to a common point, forming 
+the edge vectors (nν and nυ). Dirichlet Energy Density (DED) is calculated by summing the squared edge vectors. 
+Then, DNE is obtained by multiplying DED and area (Pampush et al., 2016):
+
+$$DED(\rho)=(n_v)^2(n_u)^2$$ $$DNE=\sum DED(\rho) \times area(\rho)$$
+
+A flat surface has low or zero principal curvatures, resulting in a DNE value close to zero. In contrast, highly
+curved or irregular surfaces generate higher principal curvature values, leading to a greater DNE 
+(Bunn et al., 2011; Pampush et al., 2016).
+
+![DNE](DNE.png)
+Figure 1. Dirichlet Normal Energy (Jang et al., 2024a)
+
+#### Analysis 
+
+To assess the correlation in the Southeast Sample, ten DNE variables were calculated using molaR 
+(Pampush et al., 2016) and stats (R Core Team, 2024). For evaluating intra-observer error, 20 auricular surfaces
+per age cohort (20s, 30s, 40s, 50s, 60s, 70s, and over 80) were randomly selected. J.Jang carried out two separate
+observations. The agreement between the observations was measured by the concordance correlation coefficient 
+(Liu et al., 2016). Age estimation was performed using the PCQDA, PCR, and PCLR models in JSDNE (Jang et al., 2024b),
+with the age ranges for each model presented in Table 2. Accuracy was determined by whether the known age-at-death 
+fell within the estimated age phase. Bias was calculated as the difference between the mean age of the estimated 
+age phase and the known age-at-death. The average absolute deviation (AAD) was computed as the absolute difference 
+between the estimated mean age and the known age-at-death:
+
+$$Bias=\sum(mean \ age \ of \ the \ estimated \ age \ phase - known \ age \ at \ death)/N$$
+
+$$AAD=\sum|mean \ age \ of \ the \ estimated \ age \ phase - known \ age \ at \ death|/N$$
+
+```{r message=FALSE, warning=FALSE}
+library(flextable)
+Model<-c("PCQDA","","","","PCR","PCLR","")
+AgeRange <-
+  c("Phase 1: 20 years – 44 years",
+    "Phase 2: 31 years – 74 years", 
+    "Phase 3: 63 years – 93 years",
+    "Phase 4: Over 76 years", 
+    "Standard error: 8.8 years", 
+    "Phase 1: Under 67 years", 
+    "Phase 2: Over 63 years"
+  )
+DesTable<-data.frame(Model,AgeRange) %>%
+  rename(`Age Range` = AgeRange)
+DesTable%>%flextable()%>%autofit()%>%
+  hline(i = 4, part = "body")%>%
+  hline(i = 5, part = "body")
+```
+Table 2. Age range of each statistical model in JSDNE package (Jang et al., 2024b)
+
+### Results
+
+#### Age-related variables 
+
+According to Pearson correlation, all variables showed statistically significant correlations with 
+age-at-death (p < 0.001). The r values indicated that nine variables had a strong positive correlation, 
+demonstrating a consistent trend. However, the proportion of polygon faces with DNE values below 0.0001 
+exhibited a strong negative correlation (r = -0.675), representing the only variable with an inverse trend 
+(Table 3 and Figure 2).
+
+```{r, warning = FALSE, message = FALSE}
+library(corrtable)
+Variables<-subset(ThaiData,select=-c(PCQDA_pred,
+                                     PCQDA_Mean, PCR_pred, 
+                                     PCLR_pred, PCLR_Mean))
+cor<-data.frame(correlation_matrix(Variables, 
+                                   digits=3,replace_diagonal = TRUE))
+CorTable<-subset(cor,select=c(Age.))
+CorTable[, 2] <-
+  c(
+    " ",
+    "Strong positive correlation",
+    "Strong positive correlation",
+    "Strong positive correlation",
+    "Strong positive correlation",
+    "Strong positive correlation",
+    "Strong positive correlation",
+    "Strong positive correlation",
+    "Strong positive correlation",
+    "Strong negative correlation",
+    "Strong positive correlation"
+  )
+CorTable<-CorTable[-1,]
+rownames(CorTable) = c(
+  "Mean value of DNE on apex",
+  "Median value of DNE on apex",
+  "IQR of DNE on apex",
+  "Total DNE per total polygon faces",
+  "Median value of DNE on whole surface",
+  "IQR of DNE on whole surface",
+  "Mean value of DNE on convex surface",
+  "Mean value of DNE on concave surface",
+  "Proportion of polygon faces with DNE of less than 0.0001",
+  "Proportion of polygon faces with DNE of over 0.6"
+)
+CorTable<-cbind(rownames(CorTable), data.frame(CorTable, row.names=NULL))
+colnames(CorTable)=c("Variables","Pearson's correlation r-value","Interpretation")
+CorTable%>%flextable()%>%autofit()
+```
+Table 3. Pearson correlation for ten DNE variables and known age-at-death. *** p-value is under 0.0001.
+
+```{r, warning = FALSE, message = FALSE, fig.height = 10}
+library(ggpubr)
+library(scales)
+
+g1 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = MeanDNE.Apex)) 
++ xlab("") + ylab("") + theme(legend.position = "none") 
++ scale_x_continuous(limit = c(20, 100)) 
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g2 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = MedianDNE.Apex)) 
++ xlab("") + ylab("") + theme(legend.position = "none") 
++ scale_x_continuous(limit = c(20, 100)) 
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g3 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = IQRDNE.Apex)) 
++ xlab("") + ylab("") + theme(legend.position ="none") 
++ scale_x_continuous(limit = c(20, 100))
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g4 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = TotalDNE.TotalPolygonFaces)) 
++ xlab("") + ylab("") + theme(legend.position ="none") 
++ scale_x_continuous(limit = c(20, 100))
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g5 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = MedianDNE.Whole)) 
++ xlab("") + ylab("") + theme(legend.position ="none") 
++ scale_x_continuous(limit = c(20, 100))
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g6 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = IQRDNE.Whole)) 
++ xlab("") + ylab("") + theme(legend.position ="none") 
++ scale_x_continuous(limit = c(20, 100))
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g7 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = MeanDNE.Convex)) 
++ xlab("") + ylab("") + theme(legend.position = "none") 
++ scale_x_continuous(limit = c(20, 100)) 
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g8 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = MeanDNE.Concave)) 
++ xlab("") + ylab("") + theme(legend.position = "none") 
++ scale_x_continuous(limit = c(20, 100)) 
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g9 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = Proportion.DNEunder0.0001)) 
++ xlab("") + ylab("") + theme(legend.position ="none") 
++ scale_x_continuous(limit = c(20, 100))
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+g10 <-
+  ggplot(data = Variables) 
++ geom_point(aes(x = Age, y = Proportion.DNEover0.6)) 
++ xlab("") + ylab("") + theme(legend.position = "none") 
++ scale_x_continuous(limit = c(20, 100))
++ scale_y_continuous(labels = number_format(accuracy = 0.001))
+
+ggarrange(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10, 
+          labels = c("(a)", "(b)","(c)","(d)","(e)","(f)",
+                     "(g)","(h)","(i)","(j)"), hjust=0.05, ncol = 2, nrow = 5)
+```
+Figure 2. Correlation graphs for curvature variables and known age-at-death in the Southeast Asian sample.
+(a) Mean value of DNE on apex; (b) Median value of DNE on apex; (c) IQR of DNE on apex; (d) Total DNE per 
+Total polygon faces; (e) Median value of DNE on whole surface; (f) IQR of DNE on whole surface; (g) Mean 
+value of DNE on convex surface; (h) Mean value of DNE on concave surface; (i) Proportion of polygon faces
+with DNE of less than 0.0001; (j) Proportion of polygon faces with DNE of over 0.6
+
+#### Degenerative patterns between European and Southeast Asian samples
+
+An inter-population comparison between the European and Southeast Asian samples was conducted with a trend
+line of each DNE curvature variable and age-at-death. The Southeast Asian sample exhibited the greatest 
+variation in DNE values with age, lower values in younger individuals and higher values in older individuals.
+The trend lines for both populations overlapped between the ages of 50 and 60 years. The proportion of polygon
+faces with DNE of less than 0.0001 shows the reversed trend (Figure 3).
+
+```{r, warning = FALSE, message = FALSE, fig.height = 10}
+t1 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Apex, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t2 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= MedianDNE.Apex, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t3 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= IQRDNE.Apex, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t4 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= TotalDNE.TotalPolygonFaces, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t5 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= MedianDNE.Whole, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t6 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= IQRDNE.Whole, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t7 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Convex, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t8 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= MeanDNE.Concave, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t9 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= Proportion.DNEunder0.0001, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+t10 <-
+  ggplot(data = TrendLine) 
++  geom_smooth(mapping=aes(x=Age, y= Proportion.DNEover0.6, color=Population), 
+               method='lm', se=F) + scale_x_continuous(limits = c(20, 90))
++ scale_y_continuous(labels = number_format(accuracy = 0.001)) 
++ xlab("") + ylab("") + theme(legend.position = "none")
+
+ggarrange(t1, t2, t3, t4, t5, t6, t7, t8, t9, t10,
+          labels = c("(a)", "(b)", "(c)", "(d)", "(e)", "(f)", 
+                     "(g)", "(h)", "(i)", "(j)"),
+          hjust = 0.05, ncol = 2, nrow = 5,common.legend = FALSE)
+
+g_all <- ggarrange(
+  t1, t2, t3, t4, t5, t6, t7, t8, t9, t10,
+  labels = c("(a)", "(b)", "(c)", "(d)", "(e)", 
+             "(f)", "(g)", "(h)", "(i)", "(j)"),
+  hjust = 0.05, ncol = 2, nrow = 5,
+  common.legend = TRUE, legend = "bottom"
+)
+
+ggsave("D:/TrendLine_Plots.png", g_all, 
+       width = 8, height = 24, dpi = 600, units = "in")
+
+```
+Figure 3. Trend line for curvature variables and known age-at-death. Red line = European sample; Green 
+line = Southeast Asian sample. (a) Mean value of DNE on apex; (b) Median value of DNE on apex; (c) IQR of 
+DNE on apex; (d) Total DNE per Total polygon faces; (e) Median value of DNE on whole surface; (f) IQR of 
+DNE on whole surface; (g) Mean value of DNE on convex surface; (h) Mean value of DNE on concave surface; 
+(i) Proportion of polygon faces with DNE of less than 0.0001; (j) Proportion of polygon faces with DNE 
+of over 0.6
+
+#### Intra-observer error of ten DNE curvature variables in the South Asian sample
+
+According to the concordance correlation coefficient results, ten DNE variables had a high level of 
+agreement exceeding 0.88 between two observations (Table 4). It indicates that DNE variables have low 
+intra-observer error and consistency.
+
+```{r, warning = FALSE, message = FALSE}
+library(epiR)
+
+c1 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$MeanDNE.Apex, 
+                            SecondObservation$MeanDNE.Apex)$rho.c["est"]),2),
+             nsmall=2)
+c2 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$MedianDNE.Apex,
+                            SecondObservation$MedianDNE.Apex)$rho.c["est"]),2),
+             nsmall=2)
+c3 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$IQRDNE.Apex, 
+                            SecondObservation$IQRDNE.Apex)$rho.c["est"]),2),
+             nsmall=2)
+c4 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$TotalDNE.TotalPolygonFaces,
+                            SecondObservation$TotalDNE.TotalPolygonFaces)$rho.c["est"]),2),
+             nsmall=2)
+c5 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$MedianDNE.Whole,
+                            SecondObservation$MedianDNE.Whole)$rho.c["est"]),2),
+             nsmall=2)
+c6 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$IQRDNE.Whole, 
+                            SecondObservation$IQRDNE.Whole)$rho.c["est"]),2),
+             nsmall=2)
+c7 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$MeanDNE.Convex,
+                            SecondObservation$MeanDNE.Convex)$rho.c["est"]),2),
+             nsmall=2)
+c8 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$MeanDNE.Concave,
+                            SecondObservation$MeanDNE.Concave)$rho.c["est"]),2),
+             nsmall=2)
+c9 <- format(round(as.numeric
+                   (epi.ccc(FirstObservation$Proportion.DNEunder0.0001,
+                            SecondObservation$Proportion.DNEunder0.0001)$rho.c["est"]),2),
+             nsmall=2)
+c10 <- format(round(as.numeric
+                    (epi.ccc(FirstObservation$Proportion.DNEover0.6,
+                             SecondObservation$Proportion.DNEover0.6)$rho.c["est"]),2),
+              nsmall=2)
+
+ccc_table <- data.frame(
+  `Curvature variable` = c(
+    "Mean value of DNE on apex",
+    "Median value of DNE on apex",
+    "IQR of DNE on apex",
+    "Total DNE per total polygon faces",
+    "Median value of DNE on whole surface",
+    "IQR of DNE on whole surface",
+    "Mean value of DNE on convex surface",
+    "Mean value of DNE on concave surface",
+    "Proportion of polygon faces with DNE of less than 0.0001",
+    "Proportion of polygon faces with DNE of over 0.6"
+  ),
+  `p(c)` = c(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10)
+)
+
+ccc_table$Interpretation <-
+  c(
+    "Fairly good agreement",
+    "Fairly good agreement",
+    "Fairly good agreement",
+    "Verry good agreement",
+    "Verry good agreement",
+    "Verry good agreement",
+    "Verry good agreement",
+    "Excellent agreement",
+    "Verry good agreement",
+    "Verry good agreement"
+  )
+
+colnames(ccc_table)<-c("Curvature variable","p(c)","Interpretation")
+
+ccc_table
+```
+Table 4. The concordance correlation coefficient (p(c)) results for the intra-observer error of curvature 
+variables in the Southeast Asian sample
+
+### Accuracy, bias, and the average absolute deviation of the JSDNE age estimation package
+
+#### PCQDA
+The results for the Southeast Asian sample (Tables 5 and 6) were compared with the European sample 
+(Jang et al. 2024b). The PCQDA model provides 64% level of accuracy with an AAD of 18.0 years, which was lower
+in accuracy and precision than the European sample (91% accuracy, AAD = 5.5 years). Considering age phase, 
+in phase 1, the Southeast Asian sample had 62% accuracy (AAD = 20.5 years), much lower than the European sample
+(98% accuracy and AAD = 5.5 years). In phase 2, both samples had high accuracy (Southeast Asian: 84% and European: 89%),
+ with similar precision (AAD of Southeast Asian: 14.0 years and European: 11.5 years). In phase 3, accuracy dropped 
+significantly in the Southeast Asian sample (49%), while remaining high in the European sample (93%). In phase 4, 
+accuracy declined further, with only 33% of Southeast Asian individuals, compared to 95% in the European sample. 
+When divided into seven age cohorts, accuracy was generally above 60% but was notably lower in the 20s (45%), 40s 
+(45%) and 50s (46%) with the Southeast Asian sample. Precision levels were consistently lower in the Southeast Asian
+sample (AAD = 13.8-23.3 years). Bias was notably higher in the Southeast Asian sample, with a tendency to underestimate
+younger individuals and overestimate older individuals.
+
+```{r, warning = FALSE, message = FALSE}
+PCQDA_result <-
+  dplyr::mutate(
+    ThaiData,
+    
+    MinAge = dplyr::case_when(
+      PCQDA_Estimated == 1 ~ '20',
+      PCQDA_Estimated == 2 ~ '31',
+      PCQDA_Estimated == 3 ~ '63',
+      PCQDA_Estimated == 4 ~ '76',
+      TRUE ~ 'x'
+    )
+  )
+
+PCQDA_result <-
+  dplyr::mutate(
+    PCQDA_result,
+    MaxAge = dplyr::case_when(
+      PCQDA_Estimated == 1 ~ '44',
+      PCQDA_Estimated == 2 ~ '75',
+      PCQDA_Estimated == 3 ~ '93',
+      PCQDA_Estimated == 4 ~ '99',
+      TRUE ~ 'x'
+    )
+  )
+
+PCQDA_result <-
+  dplyr::mutate(
+    PCQDA_result,
+    Accuracy = dplyr::case_when(Age <= MaxAge &
+                                  Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+
+PCQDA_result <-
+  dplyr::mutate(
+    PCQDA_result,
+    Mean = dplyr::case_when(
+      PCQDA_Estimated == 1 ~ '25.75',
+      PCQDA_Estimated == 2 ~ '54.09',
+      PCQDA_Estimated == 3 ~ '78.57',
+      PCQDA_Estimated == 4 ~ '86.56',
+      TRUE ~ 'x'
+    )
+  )
+
+PCQDA_result <-
+  dplyr::mutate(
+    PCQDA_result,
+    AgeCohort = dplyr::case_when(
+      Age <= 29 & Age >= 20 ~ 20,
+      Age<= 39 & Age >= 30 ~ 30,
+      Age <= 49 & Age >= 40 ~ 40,
+      Age <= 59 & Age >= 50 ~ 50,
+      Age <= 69 & Age >= 60 ~ 60,
+      Age <= 79 & Age >= 70 ~ 70,
+      Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+
+```
+```{r, warning = FALSE, message = FALSE}
+library(flextable)
+library(dplyr)
+
+European_result <- data.frame(
+  Phase = c("Total", 
+            "Phase 1 (20-44 years)", 
+            "Phase 2 (31-75 years)", 
+            "Phase 3 (63-93 years)", 
+            "Phase 4 (Over 76 years)"),
+  ACC. = c(91, 98, 89, 93, 95),
+  Bias = c(-0.3, -3.0, -0.1, 0.3, -0.1),
+  AAD. = c(9.6, 5.5, 11.5, 6.8, 5.8)
+)
+
+Total_Test2 <-
+  data.frame(round(prop.table(table(
+    PCQDA_result$Accuracy
+  )) * 100, 0))
+Total_Test2 <- rbind(Total_Test[1, ], Test_Ac1[1:4, -2])
+
+BTest <- data.frame(as.numeric(PCQDA_result$Mean))
+BTest[, 2] <-
+  BTest$as.numeric.PCQDA_result.Mean. - ThaiData$Age
+Estimated <- data.frame(as.numeric(PCQDA_result$PCQDA_Estimated))
+
+BTable <- cbind(BTest, Thai$Age, Estimated)
+BTable[, 5] = abs(BTable$V2)
+names(BTable) = c("Mean", "Bias", "Age", "phase", "ABS")
+BiasTable <- round(aggregate(BTable[, 2], 
+                             list(BTable$phase), mean), 1)
+ABSTable <- round(aggregate(BTable[, 5], 
+                            list(BTable$phase), mean), 1)
+TotalBias <- data.frame("Total", 
+                        round(mean(BTable$Bias), 1))
+names(TotalBias) = c("Group.1", "x")
+TotalABS <- data.frame("Total", 
+                       round(mean(BTable$ABS), 1))
+names(TotalABS) = c("Group.1", "x")
+TotalABS2 <- rbind(TotalABS, ABSTable)
+TotalBias2 <- rbind(TotalBias, BiasTable)
+Total_Test3 <- cbind(Total_Test2, 
+                     TotalBias2, TotalABS2)
+Total_Test3 <- subset(Total_Test3, select = -c(Group.1))
+Total_Test3 <- subset(Total_Test3, select = -c(Group.1))
+Total_Test3[, 1] = c("Total", 
+                     "Phase 1 (20-44 years)", 
+                     "Phase 2 (31-75 years)", 
+                     "Phase 3 (63-93 years)", 
+                     "Phase 4 (Over 76 years)")
+names(Total_Test3) = c("", "ACC.", "Bias", "AAD.")
+Total_Test3$ACC. <- as.integer(Total_Test3$ACC.)
+
+PCQDATable <-
+  cbind(European_result,Total_Test3)
+
+PCQDATable <-
+  subset(PCQDATable, select = -c(Var.5))
+PCQDATable %>% flextable() %>% autofit() %>% add_header_row(
+  values = c(
+    " ",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD."
+  ),
+  top = FALSE
+) %>% theme_box() %>% delete_rows(i = 1, part = "header") %>% add_header_row(
+  values = c(" ", "European", "Southeast Asian"),
+  colwidths = c(1, 3, 3),
+  top = TRUE
+) %>% align(align = "left", part = "header")
+```
+Table 5. Accuracy, bias, and AAD of PCQDA results by age phase for the European (Jang et al. 2024b) and 
+Southeast Asian skeletal samples. ACC (%) = Accuracy. Unit of the bias and AAD is years.
+
+
+
+```{r, warning = FALSE, message = FALSE}
+C_Test_Ac1 <-
+  data.frame(round(prop.table(
+    table(PCQDA_result$AgeCohort, 
+          PCQDA_result$Accuracy), 1
+  ) * 100, 0))
+C_Total_Test2 <- rbind(Total_Test[1, ], 
+                       C_Test_Ac1[1:7, -2])
+
+BTest <- data.frame(as.numeric(PCQDA_result$Mean))
+BTest[, 2] <-
+  BTest$as.numeric.PCQDA_result.Mean. - Thai$Age
+C_BTable <- cbind(BTest, PCQDA_result$AgeCohort)
+C_BTable[, 4] = abs(C_BTable$V2)
+names(C_BTable) = c("Mean", "Bias", "Cohort", "ABS")
+C_BiasTable <-
+  round(aggregate(C_BTable[, 2], 
+                  list(C_BTable$Cohort), mean), 1)
+C_ABSTable <-
+  round(aggregate(C_BTable[, 4], 
+                  list(C_BTable$Cohort), mean), 1)
+C_TotalBias <- data.frame("Total", 
+                          round(mean(C_BTable$Bias), 1))
+names(C_TotalBias) = c("Group.1", "x")
+C_TotalABS <- data.frame("Total", 
+                         round(mean(C_BTable$ABS), 1))
+names(C_TotalABS) = c("Group.1", "x")
+C_TotalABS2 <- rbind(C_TotalABS, C_ABSTable)
+C_TotalBias2 <- rbind(C_TotalBias, C_BiasTable)
+C_Total_Test3 <- cbind(C_Total_Test2, 
+                       C_TotalBias2, C_TotalABS2)
+C_Total_Test3 <- subset(C_Total_Test3, select = -c(Group.1))
+C_Total_Test3 <- subset(C_Total_Test3, select = -c(Group.1))
+C_Total_Test3[, 1] = c("Total", "20s", "30s", "40s", 
+                       "50s", "60s", "70s", "Over80")
+names(C_Total_Test3) = c("", "ACC.", "Bias", "AAD.")
+
+C_Total_Test3$ACC. <- as.integer(C_Total_Test3$ACC.)
+
+C_European_result <- data.frame(
+  Phase = c("Total", "20s", "30s", "40s", 
+            "50s", "60s", "70s", "Over80"),
+  ACC. = c(91, 66, 95, 98, 98, 98, 85, 87),
+  Bias = c(-0.3, 10.8, 11.5, 6.7, 0.4, -6.4, -5.6, -7.9),
+  AAD. = c(9.6, 11.6, 16.0, 8.9, 3.0, 11.0, 10.1, 8.1)
+)
+
+C_PCQDATable <-
+  subset(C_PCQDATable, select = -c(Var.5))
+C_PCQDATable %>% flextable() %>% autofit() %>% add_header_row(
+  values = c(
+    " ",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD."
+  ),
+  top = FALSE
+) %>% theme_box() %>% delete_rows(i = 1, part = "header") %>% add_header_row(
+  values = c(" ", "European", "Southeast Asian"),
+  colwidths = c(1, 3, 3),
+  top = TRUE
+) %>% align(align = "left", part = "header")
+```
+Table 6. Accuracy, bias, and AAD of PCQDA results by age cohort for the European (Jang et al., 2024b) 
+and Southeast Asian skeletal samples. ACC (%) = Accuracy. Bias, AAD are in years
+
+
+#### PCR
+
+The PCR model estimates age with a standard error of 8.8 years (Table 7). Accuracy for the Southeast Asian
+sample was lower (35%) than that of the European sample (76%), and higher AAD (15.7 years in Southeast Asian
+and 6.5 years in Europeans), indicating lower precision. In terms of age cohorts, Southeast Asian sample has
+low to moderate accuracy ranging from 5% to 56%. The younger individuals in their 20s and older individuals 
+in their over 80 have significantly lower accuracy (20% and 5%) and precision (23.4 and 27.9 years). Southeast
+Asian also has high degree of overestimation in younger individuals and underestimation in older individuals.
+
+
+```{r, warning = FALSE, message = FALSE}
+ThaiData[, "MinAge"] = ThaiData$PCR_pred - 8.8
+ThaiData[, "MaxAge"] = ThaiData$PCR_pred + 8.8
+PCR_result <-
+  dplyr::mutate(
+    ThaiData,
+    Accuracy = dplyr::case_when(Age <= MaxAge &
+                                  Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+PCR_result <-
+  dplyr::mutate(
+    PCR_result,
+    AgeCohort = dplyr::case_when(
+      Age <= 29 &
+        Age >= 20 ~ 20,
+      Age <= 39 &
+        Age >= 30 ~ 30,
+      Age <= 49 &
+        Age >= 40 ~ 40,
+      Age <= 59 &
+        Age >= 50 ~ 50,
+      Age <= 69 &
+        Age >= 60 ~ 60,
+      Age <= 79 &
+        Age >= 70 ~ 70,
+      Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+```
+
+```{r, warning = FALSE, message = FALSE}
+PC_Total_Test <-
+  data.frame(round(prop.table(table(
+    PCR_result$Accuracy
+  )) * 100, 0))
+
+PC_Test_Ac1 <-
+  data.frame(round(prop.table(
+    table(PCR_result$AgeCohort, 
+          PCR_result$Accuracy), 1
+  ) * 100, 0))
+
+PC_Total_Test2 <- rbind(PC_Total_Test[1, ], 
+                        PC_Test_Ac1[1:7, -2])
+
+PC_BTable <-
+  data.frame(PCR_result$PCR_pred - PCR_result$Age,
+             PCR_result$AgeCohort)
+names(PC_BTable) = c("Bias", "Cohort")
+PC_BTable[, "ABS"] = abs(PC_BTable$Bias)
+PC_BiasTable <-
+  round(aggregate(PC_BTable[, 1], 
+                  list(PC_BTable$Cohort), mean), 1)
+PC_ABSTable <-
+  round(aggregate(PC_BTable[, 3], 
+                  list(PC_BTable$Cohort), mean), 1)
+PC_TotalBias <- data.frame("Total", 
+                           round(mean(PC_BTable$Bias), 1))
+names(PC_TotalBias) = c("Group.1", "x")
+PC_TotalABS <- data.frame("Total", 
+                          round(mean(PC_BTable$ABS), 1))
+names(PC_TotalABS) = c("Group.1", "x")
+PC_TotalABS2 <- rbind(PC_TotalABS, PC_ABSTable)
+PC_TotalBias2 <- rbind(PC_TotalBias, PC_BiasTable)
+PC_Total_Test3 <- cbind(PC_Total_Test2, 
+                        PC_TotalBias2, PC_TotalABS2)
+PC_Total_Test3 <- subset(PC_Total_Test3, select = -c(Group.1))
+PC_Total_Test3 <- subset(PC_Total_Test3, select = -c(Group.1))
+PC_Total_Test3[, 1] = c("Total", "20s", "30s", 
+                        "40s", "50s", "60s", "70s", "Over80")
+names(PC_Total_Test3) = c("", "Acc.", "Bias", "AAD.")
+
+PC_Total_Test3$Acc. <- as.integer(PC_Total_Test3$Acc.)
+
+PC_European_result <- data.frame(
+  Phase = c("Total", "20s", "30s", "40s", 
+            "50s", "60s", "70s", "Over80"),
+  ACC. = c(76, 52, 74, 82, 92, 89, 76, 56),
+  Bias = c(-0.0, 8.8, 5.1, 1.6, -0.2, -1.9, -3.5, -4.0),
+  AAD. = c(6.5, 9.4, 6.4, 5.3, 4.6, 5.1, 6.6, 9.4)
+)
+
+C_PCRTable <- cbind(PC_European_result, PC_Total_Test3)
+
+C_PCRTable <-
+  subset(C_PCRTable, select = -c(Var.5))
+C_PCRTable %>% flextable() %>% autofit() %>% add_header_row(
+  values = c(
+    " ",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD."
+  ),
+  top = FALSE
+) %>% theme_box() %>% delete_rows(i = 1, part = "header") %>% add_header_row(
+  values = c(" ", "European", "Southeast Asian"),
+  colwidths = c(1, 3, 3),
+  top = TRUE
+) %>% align(align = "left", part = "header")
+```
+
+Table 7. Accuracy, bias, and AAD of PCR results by age cohort for the European (Jang et al., 2024b) and 
+Southeast Asian skeletal samples. Standard error=8.8years. ACC (%) = Accuracy. Bias, AAD are in years
+
+#### PCLR
+
+With the PCLR model (Tables 8 and 9), the total accuracy and precision were lower in the Southeast Asian
+sample (66% accuracy, AAD = 17.4 years) compared to the European sample (93% accuracy, AAD = 9.9 years). 
+Accuracy declined with an increasing age phase, dropping from 78% in phase 1 to 45% in phase 2, while precision
+also decreased (AAD = 15.8 years to 20.1 years) in Southeast Asian sample. In terms of age cohort, there were
+moderate to high accuracy (44-89%), but low precision (AAD = 14.0-26.2 years). The highest accuracy was observed
+in the 60s cohort (89%), followed by the 20s and 30s (both 80%), though these values were lower than those of
+the European sample (81-100%). Bias results showed age overestimation for individuals under 60 years 
+(from 0.8 to 26.2 years) and underestimation for those over 60 (from 8.1 to 27.2 years). In the European sample,
+age was overestimated in the 20s, 30s, and 60s, but underestimated in other age groups.
+
+```{r, warning = FALSE, message = FALSE}
+PCLR_result <-
+  dplyr::mutate(ThaiData,
+                MinAge = dplyr::case_when(PCLR_pred == 1 ~ '20', 
+                                          PCLR_pred == 2 ~ '63', TRUE ~
+                                            'x'))
+PCLR_result <-
+  dplyr::mutate(PCLR_result,
+                MaxAge = dplyr::case_when(PCLR_pred == 1 ~ '67', 
+                                          PCLR_pred == 2 ~ '99', TRUE ~
+                                            'x'))
+PCLR_result <-
+  dplyr::mutate(
+    PCLR_result,
+    AgeCohort = dplyr::case_when(
+      Age <= 29 &
+        Age >= 20 ~ 20,
+      Age <= 39 &
+        Age >= 30 ~ 30,
+      Age <= 49 &
+        Age >= 40 ~ 40,
+      Age <= 59 &
+        Age >= 50 ~ 50,
+      Age <= 69 &
+        Age >= 60 ~ 60,
+      Age <= 79 &
+        Age >= 70 ~ 70,
+      Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+PCLR_result <-
+  dplyr::mutate(
+    PCLR_result,
+    Mean = dplyr::case_when(PCLR_pred == 1 ~ '44.29', 
+                            PCLR_pred == 2 ~ '75.68', TRUE ~
+                              'x')
+  )
+PCLR_result <-
+  dplyr::mutate(
+    PCLR_result,
+    Accuracy = dplyr::case_when(Age <= MaxAge &
+                                  Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+```
+
+```{r, warning = FALSE, message = FALSE}
+LR_Total_Test <-
+  data.frame(round(prop.table(table(
+    PCLR_result$Accuracy
+  )) * 100, 0))
+LR_Test_Ac1 <-
+  data.frame(round(prop.table(
+    table(PCLR_result$PCLR_pred, 
+          PCLR_result$Accuracy), 1
+  ) * 100, 0))
+LR_Total_Test2 <- rbind(LR_Total_Test[1, ], 
+                        LR_Test_Ac1[1:2, -2])
+LR_BTest <- data.frame(as.numeric(PCLR_result$Mean))
+LR_BTest[, 2] <-
+  LR_BTest$as.numeric.PCLR_result.Mean. - PCLR_result$Age
+LR_Estimated <- data.frame(as.numeric(PCLR_result$PCLR_pred))
+LR_BTable <- cbind(LR_BTest, PCLR_result$Age, LR_Estimated)
+LR_BTable[, 5] = abs(LR_BTable$V2)
+names(LR_BTable) = c("Mean", "Bias", "Age", "phase", "ABS")
+LR_BiasTable <-
+  round(aggregate(LR_BTable[, 2], 
+                  list(LR_BTable$phase), mean), 1)
+LR_ABSTable <-
+  round(aggregate(LR_BTable[, 5], 
+                  list(LR_BTable$phase), mean), 1)
+LR_TotalBias <- data.frame("Total", 
+                           round(mean(LR_BTable$Bias), 1))
+names(LR_TotalBias) = c("Group.1", "x")
+LR_TotalABS <- data.frame("Total", 
+                          round(mean(LR_BTable$ABS), 1))
+names(LR_TotalABS) = c("Group.1", "x")
+LR_TotalABS2 <- rbind(LR_TotalABS, LR_ABSTable)
+LR_TotalBias2 <- rbind(LR_TotalBias, LR_BiasTable)
+LR_Total_Test3 <- cbind(LR_Total_Test2, 
+                        LR_TotalBias2, LR_TotalABS2)
+LR_Total_Test3 <- subset(LR_Total_Test3, select = -c(Group.1))
+LR_Total_Test3 <- subset(LR_Total_Test3, select = -c(Group.1))
+LR_Total_Test3[, 1] = c("Total", 
+                        "Phase 1 (under 67 years)", 
+                        "Phase 2 (over 63 years)")
+names(LR_Total_Test3) = c("", "Acc.", "Bias", "AAD.")
+
+LR_Total_Test3$Acc. <- as.integer(LR_Total_Test3$Acc.)
+
+L_European_result <- data.frame(
+  Phase = c("Total", 
+            "Phase 1 (under 67 years)", 
+            "Phase 2 (over 63 years)"),
+  ACC. = c(93, 95, 90),
+  Bias = c(0.2, -0.8, 1.3),
+  AAD. = c(9.9, 11.5, 8.1)
+)
+
+LRTable <- cbind(L_European_result, LR_Total_Test3)
+
+LRTable <-
+  subset(LRTable, select = -c(Var.5))
+LRTable %>% flextable() %>% autofit() %>% add_header_row(
+  values = c(
+    " ",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD."
+  ),
+  top = FALSE
+) %>% theme_box() %>% delete_rows(i = 1, part = "header") %>% add_header_row(
+  values = c(" ", "European", "Southeast Asian"),
+  colwidths = c(1, 3, 3),
+  top = TRUE
+) %>% align(align = "left", part = "header")
+```
+Table 8. Accuracy, bias, and AAD of PCLR results by age phase for the European (Jang et al. 2024b) and 
+Southeast Asian skeletal samples. ACC (%) = Accuracy. Bias, AAD are in years
+
+```{r, warning = FALSE, message = FALSE}
+LR_C_Total_Test <-
+  data.frame(round(prop.table(table(
+    PCLR_result$Accuracy
+  )) * 100, 0))
+LR_C_Test_Ac1 <-
+  data.frame(round(prop.table(
+    table(PCLR_result$AgeCohort, 
+          PCLR_result$Accuracy), 1
+  ) * 100, 0))
+LR_C_Total_Test2 <- rbind(LR_C_Total_Test[1, ], 
+                          LR_C_Test_Ac1[1:7, -2])
+LR_BTest <- data.frame(as.numeric(PCLR_result$Mean))
+LR_BTest[, 2] <-
+  LR_BTest$as.numeric.PCLR_result.Mean. - PCLR_result$Age
+LR_C_BTable <- cbind(LR_BTest, PCLR_result$AgeCohort)
+LR_C_BTable[, 4] = abs(LR_C_BTable$V2)
+names(LR_C_BTable) = c("Mean", "Bias", "Cohort", "ABS")
+LR_C_BiasTable <-
+  round(aggregate(LR_C_BTable[, 2], 
+                  list(LR_C_BTable$Cohort), mean), 1)
+LR_C_ABSTable <-
+  round(aggregate(LR_C_BTable[, 4], 
+                  list(LR_C_BTable$Cohort), mean), 1)
+LR_C_TotalBias <- data.frame("Total", 
+                             round(mean(LR_C_BTable$Bias), 1))
+names(LR_C_TotalBias) = c("Group.1", "x")
+LR_C_TotalABS <- data.frame("Total", 
+                            round(mean(LR_C_BTable$ABS), 1))
+names(LR_C_TotalABS) = c("Group.1", "x")
+LR_C_TotalABS2 <- rbind(LR_C_TotalABS, LR_C_ABSTable)
+LR_C_TotalBias2 <- rbind(LR_C_TotalBias, LR_C_BiasTable)
+LR_C_Total_Test3 <-
+  cbind(LR_C_Total_Test2, LR_C_TotalBias2, LR_C_TotalABS2)
+LR_C_Total_Test3 <- subset(LR_C_Total_Test3, select = -c(Group.1))
+LR_C_Total_Test3 <- subset(LR_C_Total_Test3, select = -c(Group.1))
+LR_C_Total_Test3[, 1] = c("Total", "20s", "30s", 
+                          "40s", "50s", "60s", "70s", "Over80")
+names(LR_C_Total_Test3) = c("", "Acc.", "Bias", "AAD.")
+
+LR_C_Total_Test3$Acc. <- as.integer(LR_C_Total_Test3$Acc.)
+
+L_PC_European_result <- data.frame(
+  Phase = c("Total", "20s", "30s", "40s", 
+            "50s", "60s", "70s", "Over80"),
+  ACC. = c(93, 98, 100, 99, 92, 81, 93, 99),
+  Bias = c(0.2, 20.5, 9.8, -1.1, -7.3, 0.4, -1.1, -10.5),
+  AAD. = c(9.5, 20.5, 9.8, 2.7, 10.8, 13.2, 4.5, 10.5)
+)
+
+C_LRTable <- cbind(L_PC_European_result, LR_C_Total_Test3)
+
+C_LRTable <-
+  subset(C_LRTable, select = -c(Var.5))
+C_LRTable %>% flextable() %>% autofit() %>% add_header_row(
+  values = c(
+    " ",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD."
+  ),
+  top = FALSE
+) %>% theme_box() %>% delete_rows(i = 1, part = "header") %>% add_header_row(
+  values = c(" ", "European", "Southeast Asian"),
+  colwidths = c(1, 3, 3),
+  top = TRUE
+) %>% align(align = "left", part = "header")
+```
+Table 9. Accuracy, bias, and AAD of PCLR results by age cohort for the European (Jang et al., 2024b) 
+and Southeast Asian skeletal samples. ACC (%) = Accuracy. Bias, AAD are in years
+
+### Identifying the suitable variables and the standard error for A_PCR and M_PCR models
+
+The optimal combination of variables was selected based on four key criteria: (1) high overall accuracy, 
+(2) high accuracy for both younger and older auricular surfaces, (3) low bias, and (4) low standard error.
+For the A_PCR model, the best combination consisted of four variables: mean DNE value on the apex, interquartile
+range (IQR) of DNE on the entire surface, proportion of polygon faces with DNE below 0.0001, and proportion of 
+polygon faces with DNE above 0.06. This model estimates age with a standard error of ±9.0 years. A multi-population
+M_PCR model was developed by incorporating 890 European and 335 Southeast Asian auricular surfaces. The optimal
+combination for this model included five variables: mean and median DNE values on the apex, mean DNE values on both 
+convex and concave surfaces, and proportion of polygon faces with DNE below 0.0001. The M_PCR model estimates age
+with a standard error of ±10.2 years. When converting the values to principal components, the first and second 
+principal components captured 97% and 96% of the variation in the A_PCR and M_PCR models, respectively. Thus,
+both models have been developed using the first and second principal components. The holdout validation was applied
+with 80% of the dataset randomly allocated for training and 20% for testing.
+
+### Accuracy, bias, and the average absolute deviation of the A_PCR and M_PCR models
+
+#### A_PCR
+
+The analysis showed no significant differences between the train, test, and combined sets, confirming that the 
+A_PCR model generalises well without overfitting or underfitting (Table 10). The results analysed are based on 
+the results from a combined set. The A_PCR model provides 69% of total accuracy with an AAD of 7.0 years. The moderate
+level of accuracy (60 to 78%) was observed across the age cohorts, except for the cohort of individuals over 80 (50%).
+AAD values were consistent across all age cohorts (5.9-9.7 years), with slightly higher values for individuals in their
+20s (9.5 years) and over 80 (9.7 years). Bias tends to overestimate for individuals under 60 and underestimate for 
+those over 60.
+
+  
+```{r, warning = FALSE, message = FALSE}
+model_A_PCR <- subset(A_PCR_Train , select = -c(Age))
+A_PCR_df <- scale(model_A_PCR)
+A_PCR_df.pca <- prcomp(A_PCR_df)
+A_PCR_pca <- A_PCR_df.pca$x[, 1:2]
+A_PCR_df2 <- data.frame(Age = A_PCR_Train$Age, A_PCR_pca)
+A_PCR <- lm(Age ~ ., data = A_PCR_df2)
+A_PCR_Bind <- subset(A_PCR_Test, select = -c(Age))
+A_PCR_scale_Bind <- scale(A_PCR_Bind)
+A_PCR_Bind_est.pca.x <-
+  as.matrix(A_PCR_scale_Bind) %*% 
+  A_PCR_df.pca$rotation
+A_PCR_Bind_est <- data.frame(A_PCR_Bind_est.pca.x)
+A_PCR_est <- A_PCR_Bind_est[, 1:2]
+A_PCR_pred <- predict(A_PCR, A_PCR_est)
+A_PCR_result <- data.frame(A_PCR_pred, A_PCR_Test$Age)
+
+KK=length(A_PCR$coefficients)-1
+SSE=sum(A_PCR$residuals**2)
+NK=length(A_PCR$residuals)
+round(sqrt(SSE/(NK-(1+KK))),1)
+```
+
+```{r, warning = FALSE, message = FALSE}
+A_PCR_data<-
+  subset(
+    ThaiData,
+    select = c(
+      Age,
+      MeanDNE.Apex,
+      Proportion.DNEunder0.0001,
+      Proportion.DNEover0.6,
+      IQRDNE.Whole
+    )
+  )
+
+A_PCR_result[, "MinAge"] = A_PCR_result$A_PCR_pred - 9.0
+A_PCR_result[, "MaxAge"] = A_PCR_result$A_PCR_pred + 9.0
+A_PCR_result <-
+  dplyr::mutate(
+    A_PCR_result,
+    Accuracy = dplyr::case_when(A_PCR_Test.Age <= MaxAge &
+                                  A_PCR_Test.Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+A_PCR_result <-
+  dplyr::mutate(
+    A_PCR_result,
+    AgeCohort = dplyr::case_when(
+      A_PCR_Test.Age <= 29 &
+        A_PCR_Test.Age >= 20 ~ 20,
+      A_PCR_Test.Age <= 39 &
+        A_PCR_Test.Age >= 30 ~ 30,
+      A_PCR_Test.Age <= 49 &
+        A_PCR_Test.Age >= 40 ~ 40,
+      A_PCR_Test.Age <= 59 &
+        A_PCR_Test.Age >= 50 ~ 50,
+      A_PCR_Test.Age <= 69 &
+        A_PCR_Test.Age >= 60 ~ 60,
+      A_PCR_Test.Age <= 79 &
+        A_PCR_Test.Age >= 70 ~ 70,
+      A_PCR_Test.Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+
+PC_Total_Test <-
+  data.frame(round(prop.table(table(
+    A_PCR_result$Accuracy
+  )) * 100, 0))
+PC_Test_Ac1 <-
+  data.frame(round(prop.table(
+    table(A_PCR_result$AgeCohort, 
+          A_PCR_result$Accuracy), 1
+  ) * 100, 0))
+PC_Total_Test2 <- rbind(PC_Total_Test[1, ], PC_Test_Ac1[1:7, -2])
+PC_BTable <-
+  data.frame(A_PCR_result$A_PCR_pred - A_PCR_result$A_PCR_Test.Age,
+             A_PCR_result$AgeCohort)
+names(PC_BTable) = c("Bias", "Cohort")
+PC_BTable[, "ABS"] = abs(PC_BTable$Bias)
+PC_BiasTable <-
+  round(aggregate(PC_BTable[, 1], 
+                  list(PC_BTable$Cohort), mean), 1)
+PC_ABSTable <-
+  round(aggregate(PC_BTable[, 3], 
+                  list(PC_BTable$Cohort), mean), 1)
+PC_TotalBias <- data.frame("Total", 
+                           round(mean(PC_BTable$Bias), 1))
+names(PC_TotalBias) = c("Group.1", "x")
+PC_TotalABS <- data.frame("Total", 
+                          round(mean(PC_BTable$ABS), 1))
+names(PC_TotalABS) = c("Group.1", "x")
+PC_TotalABS2 <- rbind(PC_TotalABS, PC_ABSTable)
+PC_TotalBias2 <- rbind(PC_TotalBias, PC_BiasTable)
+PC_Total_Test3 <- cbind(PC_Total_Test2, PC_TotalBias2, PC_TotalABS2)
+PC_Total_Test3 <- subset(PC_Total_Test3, select = -c(Group.1))
+PC_Total_Test3 <- subset(PC_Total_Test3, select = -c(Group.1))
+PC_Total_Test3[, 1] = c("Total", "20s", "30s", "40s", 
+                        "50s", "60s", "70s", "Over80")
+names(PC_Total_Test3) = c("", "Acc.", "Bias", "AAD.")
+
+Train_A_PCR_est <- data.frame(A_PCR_pca)
+Train_A_PCR_pred <- predict(A_PCR, Train_A_PCR_est)
+Train_A_PCR_result <- data.frame(Train_A_PCR_pred, A_PCR_Train$Age)
+
+Train_A_PCR_result[, "MinAge"] = Train_A_PCR_result$Train_A_PCR_pred - 9.0
+Train_A_PCR_result[, "MaxAge"] = Train_A_PCR_result$Train_A_PCR_pred + 9.0
+Train_A_PCR_result <-
+  dplyr::mutate(
+    Train_A_PCR_result,
+    Accuracy = dplyr::case_when(A_PCR_Train.Age <= MaxAge &
+                                  A_PCR_Train.Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+Train_A_PCR_result <-
+  dplyr::mutate(
+    Train_A_PCR_result,
+    AgeCohort = dplyr::case_when(
+      A_PCR_Train.Age <= 29 &
+        A_PCR_Train.Age >= 20 ~ 20,
+      A_PCR_Train.Age <= 39 &
+        A_PCR_Train.Age >= 30 ~ 30,
+      A_PCR_Train.Age <= 49 &
+        A_PCR_Train.Age >= 40 ~ 40,
+      A_PCR_Train.Age <= 59 &
+        A_PCR_Train.Age >= 50 ~ 50,
+      A_PCR_Train.Age <= 69 &
+        A_PCR_Train.Age >= 60 ~ 60,
+      A_PCR_Train.Age <= 79 &
+        A_PCR_Train.Age >= 70 ~ 70,
+      A_PCR_Train.Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+
+PC_Total_Train <-
+  data.frame(round(prop.table(table(
+    Train_A_PCR_result$Accuracy
+  )) * 100, 0))
+PC_Train_Ac1 <-
+  data.frame(round(prop.table(
+    table(Train_A_PCR_result$AgeCohort, 
+          Train_A_PCR_result$Accuracy),
+    1
+  ) * 100, 0))
+PC_Total_Train2 <- rbind(PC_Total_Train[1, ], 
+                         PC_Train_Ac1[1:7, -2])
+Train_PC_BTable <-
+  data.frame(
+    Train_A_PCR_result$Train_A_PCR_pred - Train_A_PCR_result$A_PCR_Train.Age,
+    Train_A_PCR_result$AgeCohort
+  )
+names(Train_PC_BTable) = c("Bias", "Cohort")
+Train_PC_BTable[, "ABS"] = abs(Train_PC_BTable$Bias)
+Train_PC_BiasTable <-
+  round(aggregate(Train_PC_BTable[, 1], 
+                  list(Train_PC_BTable$Cohort), mean), 1)
+Train_PC_ABSTable <-
+  round(aggregate(Train_PC_BTable[, 3], 
+                  list(Train_PC_BTable$Cohort), mean), 1)
+Train_PC_TotalBias <-
+  data.frame("Total", round(mean(Train_PC_BTable$Bias), 1))
+names(Train_PC_TotalBias) = c("Group.1", "x")
+Train_PC_TotalABS <-
+  data.frame("Total", round(mean(Train_PC_BTable$ABS), 1))
+names(Train_PC_TotalABS) = c("Group.1", "x")
+Train_PC_TotalABS2 <- rbind(Train_PC_TotalABS, Train_PC_ABSTable)
+Train_PC_TotalBias2 <- rbind(Train_PC_TotalBias, Train_PC_BiasTable)
+PC_Total_Train3 <-
+  cbind(PC_Total_Train2, Train_PC_TotalBias2, Train_PC_TotalABS2)
+PC_Total_Train3 <- subset(PC_Total_Train3, select = -c(Group.1))
+PC_Total_Train3 <- subset(PC_Total_Train3, select = -c(Group.1))
+PC_Total_Train3[, 1] = c("Total", "20s", "30s", "40s", 
+                         "50s", "60s", "70s", "Over80")
+names(PC_Total_Train3) = c("", "Acc.", "Bias", "AAD.")
+
+Total_A_PCR_Bind <- subset(A_PCR_data, select = -c(Age))
+Total_A_PCR_scale_Bind <- scale(Total_A_PCR_Bind)
+Total_A_PCR_Bind_est.pca.x <-
+  as.matrix(Total_A_PCR_scale_Bind) %*% A_PCR_df.pca$rotation
+Total_A_PCR_Bind_est <- data.frame(Total_A_PCR_Bind_est.pca.x)
+Total_A_PCR_est <- Total_A_PCR_Bind_est[, 1:2]
+Total_A_PCR_pred <- predict(A_PCR, Total_A_PCR_est)
+Total_A_PCR_result <- data.frame(Total_A_PCR_pred, A_PCR_data$Age)
+
+Total_A_PCR_result[, "MinAge"] = Total_A_PCR_result$Total_A_PCR_pred - 9.0
+Total_A_PCR_result[, "MaxAge"] = Total_A_PCR_result$Total_A_PCR_pred + 9.0
+Total_A_PCR_result <-
+  dplyr::mutate(
+    Total_A_PCR_result,
+    Accuracy = dplyr::case_when(A_PCR_data.Age <= MaxAge &
+                                  A_PCR_data.Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+Total_A_PCR_result <-
+  dplyr::mutate(
+    Total_A_PCR_result,
+    AgeCohort = dplyr::case_when(
+      A_PCR_data.Age <= 29 &
+        A_PCR_data.Age >= 20 ~ 20,
+      A_PCR_data.Age <= 39 &
+        A_PCR_data.Age >= 30 ~ 30,
+      A_PCR_data.Age <= 49 &
+        A_PCR_data.Age >= 40 ~ 40,
+      A_PCR_data.Age <= 59 &
+        A_PCR_data.Age >= 50 ~ 50,
+      A_PCR_data.Age <= 69 &
+        A_PCR_data.Age >= 60 ~ 60,
+      A_PCR_data.Age <= 79 &
+        A_PCR_data.Age >= 70 ~ 70,
+      A_PCR_data.Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+
+PC_Total_Total <-
+  data.frame(round(prop.table(table(
+    Total_A_PCR_result$Accuracy
+  )) * 100, 0))
+PC_Total_Ac1 <-
+  data.frame(round(prop.table(
+    table(Total_A_PCR_result$AgeCohort, Total_A_PCR_result$Accuracy),
+    1
+  ) * 100, 0))
+PC_Total_Total2 <- rbind(PC_Total_Total[1, ], PC_Total_Ac1[1:7, -2])
+
+Total_PC_BTable <-
+  data.frame(
+    Total_A_PCR_result$Total_A_PCR_pred - Total_A_PCR_result$A_PCR_data.Age,
+    Total_A_PCR_result$AgeCohort
+  )
+names(Total_PC_BTable) = c("Bias", "Cohort")
+Total_PC_BTable[, "ABS"] = abs(Total_PC_BTable$Bias)
+Total_PC_BiasTable <-
+  round(aggregate(Total_PC_BTable[, 1], 
+                  list(Total_PC_BTable$Cohort), mean), 1)
+Total_PC_ABSTable <-
+  round(aggregate(Total_PC_BTable[, 3], 
+                  list(Total_PC_BTable$Cohort), mean), 1)
+Total_PC_TotalBias <-
+  data.frame("Total", round(mean(Total_PC_BTable$Bias), 1))
+names(Total_PC_TotalBias) = c("Group.1", "x")
+Total_PC_TotalABS <-
+  data.frame("Total", round(mean(Total_PC_BTable$ABS), 1))
+names(Total_PC_TotalABS) = c("Group.1", "x")
+Total_PC_TotalABS2 <- rbind(Total_PC_TotalABS, Total_PC_ABSTable)
+Total_PC_TotalBias2 <- rbind(Total_PC_TotalBias, Total_PC_BiasTable)
+PC_Total_Total3 <-
+  cbind(PC_Total_Total2, Total_PC_TotalBias2, Total_PC_TotalABS2)
+PC_Total_Total3 <- subset(PC_Total_Total3, select = -c(Group.1))
+PC_Total_Total3 <- subset(PC_Total_Total3, select = -c(Group.1))
+PC_Total_Total3[, 1] = c("Total", "20s", "30s", "40s", 
+                         "50s", "60s", "70s", "Over80")
+names(PC_Total_Total3) = c("", "Acc.", "Bias", "AAD.")
+
+library(flextable)
+PC_A_PCR_result_Table <-
+  cbind(PC_Total_Test3, PC_Total_Train3, PC_Total_Total3)
+PC_A_PCR_result_Table <-
+  subset(PC_A_PCR_result_Table, select = -c(Var.5, Var.9))
+PC_A_PCR_result_Table %>% flextable() %>% autofit() %>% add_header_row(
+  values = c(
+    " ",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD."
+  ),
+  top = FALSE
+) %>% theme_box() %>% delete_rows(i = 1, part = "header") %>% add_header_row(
+  values = c(" ", "Test set", "Train set", "Combined set"),
+  colwidths = c(1, 3, 3, 3),
+  top = TRUE
+) %>% align(align = "left", part = "header")
+```
+Table 10. A_PCR results (SE: 9.0 yrs) of Southeast Asian sample were obtained within 10-year intervals. 
+Acc. = Accuracy, AAD. = Average absolute deviation (Year), Accuracy is in percent (%) and Bias, AAD are 
+in years
+
+#### M_PCR
+
+Similar to the A_PCR model, the M_PCR model showed no significant differences between the train, test, and 
+combined sets without overfitting or underfitting (Table 11). Considering the combined set, the total accuracy 
+was 67% with 10.2 years of standard error, and an AAD of 8.2 years. Across the age cohorts, there is a moderate
+to high accuracy (62 to 84%) and precision (AAD: 5.6 to 9.1 years), except for individuals in their 20s 
+(28%, AAD: 14.5 years) and over 80 (45%, AAD: 11.7 years). Bias tends to overestimate for individuals under 60
+and underestimate for those over 60, like the A_PCR model. 
+
+```{r, warning = FALSE, message = FALSE}
+model_M_PCR <- subset(M_PCR_Train , select = -c(Age, Population))
+M_PCR_df <- scale(model_M_PCR)
+M_PCR_df.pca <- prcomp(M_PCR_df)
+M_PCR_pca <- M_PCR_df.pca$x[, 1:2]
+M_PCR_df2 <- data.frame(Age = M_PCR_Train$Age, M_PCR_pca)
+M_PCR <- lm(Age ~ ., data = M_PCR_df2)
+M_PCR_Bind <- subset(M_PCR_Test, select = -c(Age, Population))
+M_PCR_scale_Bind <- scale(M_PCR_Bind)
+M_PCR_Bind_est.pca.x <-
+  as.matrix(M_PCR_scale_Bind) %*% M_PCR_df.pca$rotation
+M_PCR_Bind_est <- data.frame(M_PCR_Bind_est.pca.x)
+M_PCR_est <- M_PCR_Bind_est[, 1:2]
+M_PCR_pred <- predict(M_PCR, M_PCR_est)
+M_PCR_result <- data.frame(M_PCR_pred, M_PCR_Test$Age)
+
+KK=length(M_PCR$coefficients)-1
+SSE=sum(M_PCR$residuals**2)
+NK=length(M_PCR$residuals)
+sqrt(SSE/(NK-(1+KK)))
+```
+
+```{r, warning = FALSE, message = FALSE}
+M_PCR_data<-
+  subset(
+    MultiData,
+    select = c(
+      Age,
+      Population,
+      MeanDNE.Apex,
+      MedianDNE.Apex,
+      MeanDNE.Convex,
+      MeanDNE.Concave,
+      Proportion.DNEunder0.0001
+    )
+  )
+
+M_PCR_result[, "MinAge"] = M_PCR_result$M_PCR_pred - 10.2
+M_PCR_result[, "MaxAge"] = M_PCR_result$M_PCR_pred + 10.2
+M_PCR_result <-
+  dplyr::mutate(
+    M_PCR_result,
+    Accuracy = dplyr::case_when(M_PCR_Test.Age <= MaxAge &
+                                  M_PCR_Test.Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+M_PCR_result <-
+  dplyr::mutate(
+    M_PCR_result,
+    AgeCohort = dplyr::case_when(
+      M_PCR_Test.Age <= 29 &
+        M_PCR_Test.Age >= 20 ~ 20,
+      M_PCR_Test.Age <= 39 &
+        M_PCR_Test.Age >= 30 ~ 30,
+      M_PCR_Test.Age <= 49 &
+        M_PCR_Test.Age >= 40 ~ 40,
+      M_PCR_Test.Age <= 59 &
+        M_PCR_Test.Age >= 50 ~ 50,
+      M_PCR_Test.Age <= 69 &
+        M_PCR_Test.Age >= 60 ~ 60,
+      M_PCR_Test.Age <= 79 &
+        M_PCR_Test.Age >= 70 ~ 70,
+      M_PCR_Test.Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+
+PC_Total_Test <-
+  data.frame(round(prop.table(table(
+    M_PCR_result$Accuracy
+  )) * 100, 0))
+PC_Test_Ac1 <-
+  data.frame(round(prop.table(
+    table(M_PCR_result$AgeCohort, 
+          M_PCR_result$Accuracy), 1
+  ) * 100, 0))
+PC_Total_Test2 <- rbind(PC_Total_Test[1, ], PC_Test_Ac1[1:7, -2])
+PC_BTable <-
+  data.frame(M_PCR_result$M_PCR_pred - M_PCR_result$M_PCR_Test.Age,
+             M_PCR_result$AgeCohort)
+names(PC_BTable) = c("Bias", "Cohort")
+PC_BTable[, "ABS"] = abs(PC_BTable$Bias)
+PC_BiasTable <-
+  round(aggregate(PC_BTable[, 1], 
+                  list(PC_BTable$Cohort), mean), 1)
+PC_ABSTable <-
+  round(aggregate(PC_BTable[, 3], 
+                  list(PC_BTable$Cohort), mean), 1)
+PC_TotalBias <- data.frame("Total", 
+                           round(mean(PC_BTable$Bias), 1))
+names(PC_TotalBias) = c("Group.1", "x")
+PC_TotalABS <- data.frame("Total", 
+                          round(mean(PC_BTable$ABS), 1))
+names(PC_TotalABS) = c("Group.1", "x")
+PC_TotalABS2 <- rbind(PC_TotalABS, PC_ABSTable)
+PC_TotalBias2 <- rbind(PC_TotalBias, PC_BiasTable)
+PC_Total_Test3 <- cbind(PC_Total_Test2, PC_TotalBias2, PC_TotalABS2)
+PC_Total_Test3 <- subset(PC_Total_Test3, select = -c(Group.1))
+PC_Total_Test3 <- subset(PC_Total_Test3, select = -c(Group.1))
+PC_Total_Test3[, 1] = c("Total", "20s", "30s", "40s", 
+                        "50s", "60s", "70s", "Over80")
+names(PC_Total_Test3) = c("", "Acc.", "Bias", "AAD.")
+
+Train_M_PCR_est <- data.frame(M_PCR_pca)
+Train_M_PCR_pred <- predict(M_PCR, Train_M_PCR_est)
+Train_M_PCR_result <- data.frame(Train_M_PCR_pred, M_PCR_Train$Age)
+
+Train_M_PCR_result[, "MinAge"] = Train_M_PCR_result$Train_M_PCR_pred - 10.2
+Train_M_PCR_result[, "MaxAge"] = Train_M_PCR_result$Train_M_PCR_pred + 10.2
+Train_M_PCR_result <-
+  dplyr::mutate(
+    Train_M_PCR_result,
+    Accuracy = dplyr::case_when(M_PCR_Train.Age <= MaxAge &
+                                  M_PCR_Train.Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+Train_M_PCR_result <-
+  dplyr::mutate(
+    Train_M_PCR_result,
+    AgeCohort = dplyr::case_when(
+      M_PCR_Train.Age <= 29 &
+        M_PCR_Train.Age >= 20 ~ 20,
+      M_PCR_Train.Age <= 39 &
+        M_PCR_Train.Age >= 30 ~ 30,
+      M_PCR_Train.Age <= 49 &
+        M_PCR_Train.Age >= 40 ~ 40,
+      M_PCR_Train.Age <= 59 &
+        M_PCR_Train.Age >= 50 ~ 50,
+      M_PCR_Train.Age <= 69 &
+        M_PCR_Train.Age >= 60 ~ 60,
+      M_PCR_Train.Age <= 79 &
+        M_PCR_Train.Age >= 70 ~ 70,
+      M_PCR_Train.Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+
+PC_Total_Train <-
+  data.frame(round(prop.table(table(
+    Train_M_PCR_result$Accuracy
+  )) * 100, 0))
+PC_Train_Ac1 <-
+  data.frame(round(prop.table(
+    table(Train_M_PCR_result$AgeCohort, 
+          Train_M_PCR_result$Accuracy), 1
+  ) * 100, 0))
+PC_Total_Train2 <- rbind(PC_Total_Train[1, ], PC_Train_Ac1[1:7, -2])
+Train_PC_BTable <-
+  data.frame(
+    Train_M_PCR_result$Train_M_PCR_pred - Train_M_PCR_result$M_PCR_Train.Age,
+    Train_M_PCR_result$AgeCohort
+  )
+names(Train_PC_BTable) = c("Bias", "Cohort")
+Train_PC_BTable[, "ABS"] = abs(Train_PC_BTable$Bias)
+Train_PC_BiasTable <-
+  round(aggregate(Train_PC_BTable[, 1], 
+                  list(Train_PC_BTable$Cohort), mean), 1)
+Train_PC_ABSTable <-
+  round(aggregate(Train_PC_BTable[, 3], 
+                  list(Train_PC_BTable$Cohort), mean), 1)
+Train_PC_TotalBias <-
+  data.frame("Total", round(mean(Train_PC_BTable$Bias), 1))
+names(Train_PC_TotalBias) = c("Group.1", "x")
+Train_PC_TotalABS <-
+  data.frame("Total", round(mean(Train_PC_BTable$ABS), 1))
+names(Train_PC_TotalABS) = c("Group.1", "x")
+Train_PC_TotalABS2 <- rbind(Train_PC_TotalABS, Train_PC_ABSTable)
+Train_PC_TotalBias2 <- rbind(Train_PC_TotalBias, Train_PC_BiasTable)
+PC_Total_Train3 <-
+  cbind(PC_Total_Train2, Train_PC_TotalBias2, Train_PC_TotalABS2)
+PC_Total_Train3 <- subset(PC_Total_Train3, select = -c(Group.1))
+PC_Total_Train3 <- subset(PC_Total_Train3, select = -c(Group.1))
+PC_Total_Train3[, 1] = c("Total", "20s", "30s", "40s", 
+                         "50s", "60s", "70s", "Over80")
+names(PC_Total_Train3) = c("", "Acc.", "Bias", "AAD.")
+
+Total_M_PCR_Bind <- subset(M_PCR_data, select = -c(Age, Population))
+Total_M_PCR_scale_Bind <- scale(Total_M_PCR_Bind)
+Total_M_PCR_Bind_est.pca.x <-
+  as.matrix(Total_M_PCR_scale_Bind) %*% M_PCR_df.pca$rotation
+Total_M_PCR_Bind_est <- data.frame(Total_M_PCR_Bind_est.pca.x)
+Total_M_PCR_est <- Total_M_PCR_Bind_est[, 1:2]
+Total_M_PCR_pred <- predict(M_PCR, Total_M_PCR_est)
+Total_M_PCR_result <- data.frame(Total_M_PCR_pred, M_PCR_data$Age)
+
+Total_M_PCR_result[, "MinAge"] = Total_M_PCR_result$Total_M_PCR_pred - 10.2
+Total_M_PCR_result[, "MaxAge"] = Total_M_PCR_result$Total_M_PCR_pred + 10.2
+Total_M_PCR_result <-
+  dplyr::mutate(
+    Total_M_PCR_result,
+    Accuracy = dplyr::case_when(M_PCR_data.Age <= MaxAge &
+                                  M_PCR_data.Age >= MinAge ~ 'o', TRUE ~ 'x')
+  )
+Total_M_PCR_result <-
+  dplyr::mutate(
+    Total_M_PCR_result,
+    AgeCohort = dplyr::case_when(
+      M_PCR_data.Age <= 29 &
+        M_PCR_data.Age >= 20 ~ 20,
+      M_PCR_data.Age <= 39 &
+        M_PCR_data.Age >= 30 ~ 30,
+      M_PCR_data.Age <= 49 &
+        M_PCR_data.Age >= 40 ~ 40,
+      M_PCR_data.Age <= 59 &
+        M_PCR_data.Age >= 50 ~ 50,
+      M_PCR_data.Age <= 69 &
+        M_PCR_data.Age >= 60 ~ 60,
+      M_PCR_data.Age <= 79 &
+        M_PCR_data.Age >= 70 ~ 70,
+      M_PCR_data.Age >= 80 ~ 80,
+      TRUE ~ NA_real_
+    )
+  )
+
+PC_Total_Total <-
+  data.frame(round(prop.table(table(
+    Total_M_PCR_result$Accuracy
+  )) * 100, 0))
+PC_Total_Ac1 <-
+  data.frame(round(prop.table(
+    table(Total_M_PCR_result$AgeCohort, 
+          Total_M_PCR_result$Accuracy), 1
+  ) * 100, 0))
+PC_Total_Total2 <- rbind(PC_Total_Total[1, ], PC_Total_Ac1[1:7, -2])
+
+Total_PC_BTable <-
+  data.frame(
+    Total_M_PCR_result$Total_M_PCR_pred - Total_M_PCR_result$M_PCR_data.Age,
+    Total_M_PCR_result$AgeCohort
+  )
+names(Total_PC_BTable) = c("Bias", "Cohort")
+Total_PC_BTable[, "ABS"] = abs(Total_PC_BTable$Bias)
+Total_PC_BiasTable <-
+  round(aggregate(Total_PC_BTable[, 1], 
+                  list(Total_PC_BTable$Cohort), mean), 1)
+Total_PC_ABSTable <-
+  round(aggregate(Total_PC_BTable[, 3], 
+                  list(Total_PC_BTable$Cohort), mean), 1)
+Total_PC_TotalBias <-
+  data.frame("Total", round(mean(Total_PC_BTable$Bias), 1))
+names(Total_PC_TotalBias) = c("Group.1", "x")
+Total_PC_TotalABS <-
+  data.frame("Total", round(mean(Total_PC_BTable$ABS), 1))
+names(Total_PC_TotalABS) = c("Group.1", "x")
+Total_PC_TotalABS2 <- rbind(Total_PC_TotalABS, Total_PC_ABSTable)
+Total_PC_TotalBias2 <- rbind(Total_PC_TotalBias, Total_PC_BiasTable)
+PC_Total_Total3 <-
+  cbind(PC_Total_Total2, Total_PC_TotalBias2, Total_PC_TotalABS2)
+PC_Total_Total3 <- subset(PC_Total_Total3, select = -c(Group.1))
+PC_Total_Total3 <- subset(PC_Total_Total3, select = -c(Group.1))
+PC_Total_Total3[, 1] = c("Total", "20s", "30s", "40s", 
+                         "50s", "60s", "70s", "Over80")
+names(PC_Total_Total3) = c("", "Acc.", "Bias", "AAD.")
+
+library(flextable)
+PC_M_PCR_result_Table <-
+  cbind(PC_Total_Test3, PC_Total_Train3, PC_Total_Total3)
+PC_M_PCR_result_Table <-
+  subset(PC_M_PCR_result_Table, select = -c(Var.5, Var.9))
+PC_M_PCR_result_Table %>% flextable() %>% autofit() %>% add_header_row(
+  values = c(
+    " ",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD."
+  ),
+  top = FALSE
+) %>% theme_box() %>% delete_rows(i = 1, part = "header") %>% add_header_row(
+  values = c(" ", "Test set", "Train set", "Combined set"),
+  colwidths = c(1, 3, 3, 3),
+  top = TRUE
+) %>% align(align = "left", part = "header")
+```
+
+Table 11. M_PCR results (SE: 10.2 yrs) were obtained within 10-year intervals. Acc. = Accuracy, 
+AAD. = Average absolute deviation (Year), Accuracy is in percent (%) and Bias, AAD are in years
+
+The results were divided by the populations (Table 12). Total accuracy and precision were similar between
+the European (60%, AAD: 8.0 years) and Southeast Asian (65%, AAD: 8.9 years) samples. However, differences
+emerged across age cohorts. The M_PCR model was more effective for younger under 40 years in the Southeast
+Asian sample (55% to 71% in Southeast Asian sample, 22% to 56% in European sample), while European 
+individuals in middle-aged cohorts from 40s to 60s had higher accuracy (62% to 67% in Southeast Asian sample,
+82% to 91% in European sample). Similar levels of precision are observed across the cohorts. Bias patterns 
+also differed: The European sample had overestimation for individuals under 60 and underestimation for those
+over 60. In contrast, the Southeast Asian sample showed the opposite trend, with underestimation for individuals
+under 60 and overestimation for those over 60.
+
+```{r, warning = FALSE, message = FALSE}
+P_M_PCR_result<-cbind(Total_M_PCR_result,MultiData$Population)
+colnames(P_M_PCR_result)<-c("PCR_pred","Age","MinAge","MaxAge",
+                            "Accuracy","AgeCohort","Population")
+AS_data <- subset(P_M_PCR_result, Population == "Southeast Asian")
+E_data <- subset(P_M_PCR_result, Population == "European")
+
+AS_Result <-
+  data.frame(round(prop.table(table(
+    AS_data$Accuracy
+  )) * 100, 0))
+AS_Ac1 <-
+  data.frame(round(prop.table(
+    table(AS_data$AgeCohort, AS_data$Accuracy), 1
+  ) * 100, 0))
+AS_Result2 <- rbind(AS_Result[1, ], AS_Ac1[1:7, -2])
+AS_BTable <-
+  data.frame(AS_data$PCR_pred - AS_data$Age,
+             AS_data$AgeCohort)
+names(AS_BTable) = c("Bias", "Cohort")
+AS_BTable[, "ABS"] = abs(AS_BTable$Bias)
+AS_BiasTable <-
+  round(aggregate(AS_BTable[, 1], 
+                  list(AS_BTable$Cohort), mean), 1)
+AS_ABSTable <-
+  round(aggregate(AS_BTable[, 3], 
+                  list(AS_BTable$Cohort), mean), 1)
+AS_TotalBias <- data.frame("Total", round(mean(AS_BTable$Bias), 1))
+names(AS_TotalBias) = c("Group.1", "x")
+AS_TotalABS <- data.frame("Total", round(mean(AS_BTable$ABS), 1))
+names(AS_TotalABS) = c("Group.1", "x")
+AS_TotalABS2 <- rbind(AS_TotalABS, AS_ABSTable)
+AS_TotalBias2 <- rbind(AS_TotalBias, AS_BiasTable)
+AS_Result3 <- cbind(AS_Result2, AS_TotalBias2, AS_TotalABS2)
+AS_Result3 <- subset(AS_Result3, select = -c(Group.1))
+AS_Result3 <- subset(AS_Result3, select = -c(Group.1))
+AS_Result3[, 1] = c("Total", "20s", "30s", "40s", 
+                    "50s", "60s", "70s", "Over80")
+names(AS_Result3) = c("", "Acc.", "Bias", "AAD.")
+
+E_Result <-
+  data.frame(round(prop.table(table(
+    E_data$Accuracy
+  )) * 100, 0))
+E_Ac1 <-
+  data.frame(round(prop.table(
+    table(E_data$AgeCohort, E_data$Accuracy), 1
+  ) * 100, 0))
+E_Result2 <- rbind(E_Result[1, ], E_Ac1[1:7, -2])
+E_BTable <-
+  data.frame(E_data$PCR_pred - E_data$Age,
+             E_data$AgeCohort)
+names(E_BTable) = c("Bias", "Cohort")
+E_BTable[, "ABS"] = abs(E_BTable$Bias)
+E_BiasTable <-
+  round(aggregate(E_BTable[, 1], 
+                  list(E_BTable$Cohort), mean), 1)
+E_ABSTable <-
+  round(aggregate(E_BTable[, 3], 
+                  list(E_BTable$Cohort), mean), 1)
+E_TotalBias <- data.frame("Total", round(mean(E_BTable$Bias), 1))
+names(E_TotalBias) = c("Group.1", "x")
+E_TotalABS <- data.frame("Total", round(mean(E_BTable$ABS), 1))
+names(E_TotalABS) = c("Group.1", "x")
+E_TotalABS2 <- rbind(E_TotalABS, E_ABSTable)
+E_TotalBias2 <- rbind(E_TotalBias, E_BiasTable)
+E_Result3 <- cbind(E_Result2, E_TotalBias2, E_TotalABS2)
+E_Result3 <- subset(E_Result3, select = -c(Group.1))
+E_Result3 <- subset(E_Result3, select = -c(Group.1))
+E_Result3[, 1] = c("Total", "20s", "30s", "40s", 
+                   "50s", "60s", "70s", "Over80")
+names(E_Result3) = c("", "Acc.", "Bias", "AAD.")
+
+
+library(flextable)
+popTable <-
+  cbind(E_Result3,AS_Result3, PC_Total_Total3)
+popTable <-
+  subset(popTable, select = -c(Var.5, Var.9))
+popTable %>% flextable() %>% autofit() %>% add_header_row(
+  values = c(
+    " ",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD.",
+    "ACC.",
+    "Bias",
+    "AAD."
+  ),
+  top = FALSE
+) %>% theme_box() %>% delete_rows(i = 1, part = "header") %>% add_header_row(
+  values = c(" ", "European", "Southeast Asian", "Multipopulation"),
+  colwidths = c(1, 3, 3, 3),
+  top = TRUE
+) %>% align(align = "left", part = "header")
+```
+Table 12. PCR results (SE: 10.2 yrs) were obtained within 10-year intervals by population. 
+Acc. = Accuracy, AAD. = Average absolute deviation (Year), Accuracy is in percent (%) and Bias,
+AAD are in years
+
+### Discussion
+
+This study demonstrates that the JSDNE R package exhibits varying degrees of accuracy in estimating 
+age-at-death across European and Southeast Asian samples. While the model performed with moderate to 
+high accuracy (76%-93%) in the European sample, its predictive ability for the Southeast Asian sample
+was reduced (35%-66%). Precision also varied, with the European sample showing more consistent age 
+estimations (AAD = 6.5-9.9 years) than the Southeast Asian sample (AAD = 15.7-18.0 years). Among the 
+three models tested, the PCR function exhibited the poorest fit for younger and older individuals in 
+  the Southeast Asian sample, whereas the PCQDA and PCLR functions demonstrated more stable performance
+due to their broader age ranges. Overall, statistical bias was evident in the PCR model, which exhibited
+a strong affinity for the European sample.
+Figure 2 illustrates that the Southeast Asian sample exhibits distinct degenerative patterns compared to 
+the European sample. Among younger individuals, the Southeast Asian group had lower DNE values; however, 
+these values increased rapidly with age. After middle age (approximately 50 years), the DNE values in the 
+Southeast Asian sample surpassed those of the European sample. Schmitt (2004) and Singsuwana et al. (2012) 
+argued that Southeast Asians exhibit distinct degenerative patterns from Northern Americans. Schmitt (2004) 
+found that the Lovejoy method consistently underestimated age, misclassifying 85% of individuals over 40 into
+younger age phases. This inaccuracy is attributed to morphological differences. Similarly, Singsuwana et al. 
+(2012) analysed 210 auricular surfaces from Southeast Asians and observed traditional methods. It struggled to 
+distinguish fine granulations, dense surfaces, and microporosity. Their findings suggest that both Northern 
+Americans and Europeans, where Whites are the majority, may follow different degenerative trajectories than 
+Southeast Asians (Pedersen and Domett, 2022).
+ 
+The degenerative pattern of bones results from a complex interaction of genetic, cultural, and environmental 
+factors, contributing to statistical bias. The Southeast Asian, particularly Thai, population has high genetic
+and cultural diversity due to historical migrations from Vietnam, Laos, and China. The economy of Thailand is 
+primarily agriculture, with a recorded GDP growth rate of 8.7% in 2022. The country ranks second globally in rice
+exports (The Global Economy, 2023). In Isan province, the population predominantly engages in rice farming 
+(Techataweewan et al., 2017). In contrast, the occupations of European skeletal samples documented non-manual roles
+or housewives (Cattaneo et al., 2018; Cardoso, 2006; Ferrerira et al., 2014). Prolonged agricultural labor is 
+associated with sustained joint loading and frequent lifting of heavy materials. It places considerable mechanical 
+stress on the sacroiliac joint (Vleeming et al., 2012). This stress accumulates micro-damage in the articular cartilage
+and subchondral bone, which in turn triggers the formation of osteophytes. It frequently occurs along the apex of 
+the auricular surface, increasing surface curvature irregularity (Lovejoy et al., 1985). 
+The dietary also affects the degenerative pattern. The glycemic load (GL) is defined as the product of a food's 
+glycemic index (GI) and the amount of available carbohydrates per serving. GL offers a more comprehensive measure 
+of a food's glycemic impact by accounting for both the quality and quantity of carbohydrates. Higher GL is associated
+with a more rapid increase in blood glucose levels (Kim, 2020). The staple foods in Thailand, Italy, and Portugal 
+are rice, pasta, and potatoes. From 1961 to 2021, annual per capita consumption of these staples is 171 kg of rice, 
+23 kg of pasta, and 66 kg of potatoes. It corresponds to approximate daily intakes of 470 g, 63 g, and 180 g, 
+respectively (HelgiLibrary, 2023). GI values of rice, pasta and potatoes are 72, 38, and 72 (MSD Manual, 2025). 
+Consequently, GL values are 33,840 for rice, 2,394 for pasta, and 12,960 for potatoes. The elevated glycemic load
+resulting from high rice consumption affects frequent glycemic spikes and associated metabolic stress. Bone 
+remodeling is regulated by a balance between osteoclastic resorption and osteoblastic formation. High glucose levels
+increase reactive oxygen species (ROS) and activate pro-inflammatory cytokines such as TNF-α and IL-6, stimulating 
+osteoclast activity (Jiao et al., 2016). Increased rate of bone resorption accelerates skeletal degeneration.
+Moreover, Roh et al. (2018) reported that Asians exhibited a 12.3% smaller pancreatic volume and 22.8% greater 
+pancreatic fat accumulation than Caucasians. These genetic differences impair β-cell function and reduce insulin
+secretion. It elevates blood glucose levels and increases skeletal degeneration (Jiao et al., 2016). When comparing
+DNE trends, Southeast Asians show a steeper degeneration curve than Europeans, indicating faster skeletal aging. 
+These genetic, cultural and environmental differences highlight the necessity of population-specific age estimation
+models. The findings emphasise the importance of population-specific models in improving accuracy and precision. 
+The A_PCR model, developed with the Southeast Asian sample, demonstrated higher accuracy and precision 
+(69% and AAD=7.0 years) than the PCR model, highlighting the necessity of population-specific adjustments. 
+Meanwhile, the M_PCR model, developed using a multi-populational dataset, provided moderate accuracy 
+(Southeast Asian: 65% and 8.9 years, European: 60% and 8.0 years) but performed less effectively in younger and 
+older cohorts, especially for European samples. It reflects differences in degenerative patterns across populations. 
+While multi-population models offer broader applicability, they still show lower accuracy than population-specific 
+approaches. These results suggest that population-specific models should be prioritised for the most reliable age 
+estimations, while multi-population models may serve as alternatives when population information is unidentified.
+
+
+### Conclusion 
+
+This study demonstrates that the JSDNE package performs with lower accuracy in Southeast Asian samples. PCQDA 
+and PCLR models (~60% accuracy) outperform the PCR model (35%) due to their broader age ranges. Statistical bias 
+arises from the complex interplay of genetic, cultural, and environmental factors, leading to differences in
+degenerative patterns across populations. These findings underscore the importance of population-specific models
+for more accurate age estimation. The JSDNE package has been upgraded by involving the A_PCR model for Southeast 
+Asian samples and the M_PCR model for multi-populational datasets. While population-specific models remain the 
+preferred approach, multi-populational models serve as an alternative when population information is unidentified. 
+The A_PCR and M_PCR models are available in the JSDNE package (https://cran.r-project.org/package=JSDNE). 
+The detailed code of this paper is openly available at https://github.com/jisunjang19/cran-JSDNE 
+or doi: 10.5281/zenodo.12708779.  
+
+### Acknowledgements
+
+We would like to thank Dr. Maria Susana De Jesus Garcia with the Luís Lopes Skeletal Collection, curated by the 
+National Museum of Natural History and Science (MUHNAC), in Lisbon, Portugal, Dr. Maria Teresa Ferreira with the 
+21st Century Identified Skeletal Collection, curated at the University of Coimbra, in Portugal, and Dr. Mirko Mattia
+and Dr. Cristina Cattaneo with the CAL Milano Cemetery Skeletal Collection, curated at the University of Milan, in 
+Italy, Prof. Sitthichai Iamsaard with the skeletal collection at Khon Kaen University (KKU) Human Skeletal Research
+Centre (HSRC), housed in the Department ofmAnatomy in the Faculty of Medicine at KKU, for allowing to access to 
+their valuable collections.
+
+### References
+Botha, D., Lynnerup, N. and Steyn, M., 2019. Age estimation using bone mineral density in South Africans. Forensic 
+Science International. doi:10.1016/j.forsciint.2019.02.020 
+Brooks, S. and Suchey, J. M., 1990. Skeletal age determination based on the os pubis: A comparison of the Acsadi-
+Nemeskeri and Suchey-Brooks methods. Human Evolution, 5/3, pp. 227-238.
+Buckberry, J. L. and Chamberlain, A. T., 2002. Age estimation from the auricular surface of the ilium: A revised 
+method. American Journal of Physical Anthropology, 119/3, pp. 231–239. doi:10.1002/ajpa.10130
+Bunn, J. M., Boyer, D. M., Lipman, Y., St.Clair, E. M., Jernvall, J. and Daubechies, I., 2011. Comparing Dirichlet 
+normal surface energy of tooth crowns, a new technique of molar shape quantification for dietary inference, with 
+previous methods in isolation and in combination. American Journal of Physical Anthropology, 145/2, pp. 247– 261. 
+doi:10.1002/ajpa.21489
+Byers, S. N., 2017. Introduction to Forensic Anthropology. 5th edition. Oxon: Routledge.
+Cardoso, F.V., 2006. Brief Communication: The Collection of Identified Human Skeletons Housed at the Bocage Museum 
+(National Museum of Natural History), Lisbon, Portugal. American Journal of Physical Anthropology, 129, pp. 173-173. 
+doi: 10.1002/ajpa.20228
+Cattaneo, C., Mazzarelli, D., Cappella, A., Castoldi, E., Mattia, M., Poppa, P., De Angelis, D., Vitello, A. and 
+Biehler-Gomez, L., 2018. A modern documented Italian identified skeletal of 2127 skeletons: the CAL Milano Cemetery 
+Skeletal Collection. Forensic Science International, 287, pp: 219.e1-219.e5. doi: 10.1016/j.forsciint.2018.03.041
+Curate, F., Navega, D., Cunha, E. and Coelho, J. O., 2022. DXAGE 2.0 - adult age at death estimation using bone loss
+in the proximal femur and the second metacarpal. International Journal of Legal Medicine, 136/5. pp. 1483-1494. 
+doi: 10.1007/s00414-022-02840-y
+Ferreira, M. T., Vincente, R., Navega, D., Gonçalves, D., Curate, F. and Cunha, E., 2014. A new forensic collection 
+housed at the University of Coimbra, Portugal: The 21st century identified skeletal collection. Forensic Science 
+International. 245, pp: 202.e1-202.e5. doi: 10.1016/j.forsciint.2014.09.021
+Helgi Library, 2023. Available at: https://www.helgilibrary.com/
+Iscan, M. Y., Loth, S. R. and Wright, R. K.,1984. Metamorphosis at the sternal rib end: A new method to estimate 
+age at death in white males. American Journal of Physical Anthropology, 65/2, pp. 147 156. doi:10.1002/ajpa.1330650206
+Jang, J., Mariconti, E., and Watts, R., 2024. Technical note: Analysis of the auricular surface for age estimation
+using dirichlet normal energy, Forensic Imaging. 36. doi: 10.1016/j.fri.2024.200579
+Jang, J., Mariconti, E. and Watts, R. 2024. ‘JSDNE’: A novel R package for estimating age quantitatively with the 
+auricular surface by Dirichlet normal energy. Journal of Archaeological Science, 171, 106080. 
+doi:10.1016/j.jas.2024.106080.
+Jia, H., Xiao, E. and Graves, D. T. 2015. Diabetes and its effect on bone and fracture healing. Current Osteoporosis 
+Reports, 13/6, pp.327–335. doi:10.1007/s11914-015-0286-8.
+Kim, D., 2020. Glycemic index. In: Obesity: Global Impact and Epidemiology. 1st ed. London: Elsevier, pp.183–189. 
+doi:10.1016/B978-0-12-818839-2.00014-4.
+Kumar, C.L. and Sridhar, M.S., 1990. Estimation of the age of an individual based on times of eruption of permanent 
+teeth. Forensic Science International, 48, pp.1–7.
+Lovejoy, C. O., Meindl, R. S., Pryzbeck, T. R. and Mensforth, R. P., 1985. Chronological metamorphosis of the auricular 
+surface of the ilium: A new method for the determination of adult skeletal age at death. American Journal of Physical
+Anthropology, 68/1, pp. 15–28. doi:10.1002/ajpa.1330680103
+Márquez-Grant, N., 2015. An overview of age estimation in forensic anthropology: perspectives and practical considerations. 
+Annals of Human Biology, 42/4. pp. 308-322. doi: 10.3109/03014460.2015.1048288
+Mensforth, 1990. Paleodemography of the Carlston Annis (Bt-5) Late Archaic skeletal population. American Journal of 
+Physical Anthropology, 82/1, pp. 81-99. doi: 10.1002/ajpa.1330820110
+Miranker, M., 2016. A Comparison of Different Age Estimation Methods of the Adult Pelvis. Journal of Forensic Sciences,
+61/5, pp. 1173–1179. doi:10.1111/1556- 4029.13130
+Moraitis, K., Zorba, E., Eliopoulos, C. and Fox, S. C. 2014. A Test of the Revised Auricular Surface Aging Method 
+on a Modern European Population. Journal of Forensic Sciences, 59/1, pp. 188 194. doi:10.1111/1556-4029.12303
+MSD Manuals, 2025. Glycemic index of some foods. Available at: https://www.msdmanuals.com/home/multimedia/table/
+glycemic-index-of-some-foods [Accessed 9 Apr. 2025].
+Pampush, J. D., Winchester, J. M., Morse, P. E., Vining, A. Q., Boyer, D. M. and Kay, R. F., 2016. Introducing molaR: 
+a New R Package for Quantitative Topographic Analysis of Teeth (and Other Topographic Surfaces). Journal of Mammalian
+Evolution, 23/4, pp. 397–412. doi:10.1007/s10914-016 9326-0
+Pedersen, L. and Domett, K., 2022. Adult age at death estimation: methods tested on Thai postcranial skeletal remains.
+Anthropological Science, 130/2, doi: 10.1537/ase.211219.
+R Core Team., 2024. R: A language and environment for statistical computing. Vienna, Austria: R Foundation for 
+Statistical Computing. Available at: http://www.R-project.org/ [Accessed 9 Apr. 2025].
+Rissech, C., Wilson, J., Winburn, A. P., Turbón, D. and Steadman, D., 2012. A comparison of three established age 
+estimation methods on an adult Spanish sample. International Journal of Legal Medicine, 126/1, pp. 145–155. 
+doi:10.1007/s00414-011-0586-1 
+Rivera-Sandoval., J., Monsalve, T., and Cattaneo, C. 2018. A test of four innominate bone age assessment methods in 
+a modern skeletal collection from Medellin, Colombia. Forensic Science International, 282: 232.e1-232.e8.
+Roh, J. Y., Lee, M. S., Yoon, S. H., Park, M. C. and Kim, Y. H. 2018. Quantitative analysis of trabecular 
+microarchitecture of the pubic bone in relation to age using micro-CT. Journal of Forensic Sciences, 63/4, pp.1155–1160. 
+doi:10.1111/1556-4029.13660.
+Schlager, S., 2017. Morpho and Rvcg – Shape Analysis in R. In G. Zheng, S. Li, G. Szekely (eds.), Statistical Shape 
+and Deformation Analysis, pp. 217–256. Massachusetts: Academic Press. 
+Schmeling, A., Schulz, R., Reisinger, W., Mühler, M., Wernecke, K.-D. and Geserick, G., 2004. Studies on the time 
+frame for ossification of the medial clavicular epiphyseal cartilage in conventional radiography. International 
+Journal of Legal Medicine, 118/1, pp.5–8. doi:10.1007/s00414-003-0404-5.
+Schmitt, A. 2004. Age-at-death assessment using the os pubis and the auricular surface of the ilium: a test on an 
+identified Asian sample. International Journal of Osteoarchaeology, 14/1, pp.1–6. doi:10.1002/oa.693.
+Schwartz, J. H., 1995. Skeletal keys an introduction to human skeletal morphology, development, and analysis.
+New York: Oxford University Press Singsuwan, P., Mahakkanukrauh, P. and Vongvaivanich, K. 2012. Age estimation from
+the auricular surface of the ilium in a Thai population: A comparison of methods. Surgical and Radiologic Anatomy, 
+34/9: 839–844. doi: 10.1007/s00276-012-0969-0.
+Štepanovský, M., Buk, Z., Kotěrová, A. P., Brůžek, J., Bejdová, Š., Techataweewan, N. and Velemínská, J. 2023. 
+Automated age‐at‐death estimation
+from 3D surface scans of the facies auricularis of the pelvic bone. Forensic Science International, 349, 
+doi:10.1016/j.forsciint.2023.111765
+Techataweewan, N., Panthongviriyakul, C., Toomsan, Y., Mothong, W., Kanla, P., Chaichun, A., Amarttayakong, P. and 
+Tayles, N., 2018. Human body donation in Thailand: Donors at Khon Kaen University. Annals of Anatomy - Anatomischer
+Anzeiger, 216, pp. 142–151. doi:10.1016/j.aanat.2017.11.004.
+The Global Economy. 2023. Thailand: Share of agriculture in the economy. Available at: https://www.theglobaleconomy.
+com/Thailand/share_of_agriculture/ [Accessed 6 Apr 2025]
+Villa, C., Buckberry, J., Cattaneo, C., Frohlich, B. and Lynnerup, N., 2015. Quantitative Analysis of the Morphological
+Changes of the Pubic Symphyseal Face and the Auricular Surface and Implications for Age at Death Estimation. Journal
+of Forensic Sciences, 60/3, pp. 556–565. doi:10.1111/1556 4029.12689
+Vleeming, A., Schuenke, M.D., Masi, A.T., Carreiro, J.E., Danneels, L. and Willard, F.H. 2012. The sacroiliac joint: 
+an overview of its anatomy, function and potential clinical implications. Journal of Anatomy, 221: 537-567.
+Warrier, V., Shedge, R., Garg, P. K., Dixit, S. G., Krishan, K. and Kanchan, T., 2023. Age estimation from iliac 
+auricular surface using Bayesian inference and principal component analysis: a CT-based study in an Indian population.
+Forensic Science, Medicine and Pathology. doi: 10.1007/s12024-023-00637-y
+Zhang, Y., Wang, Z., Liao, Y., Li, T., Xu, X., Wu, W., Zhou, J., Huang, W., Luo, S. and Chen, F., 2022. A machine-
+learning approach using pubic CT based on radiomics to estimate adult ages. European Journal of Radiology. 
+doi: 10.1016/j.ejrad.2022.110516
+
