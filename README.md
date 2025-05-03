@@ -67,11 +67,11 @@ The raw datas of this study (RawData, PCLR_Train, PCLR_Test, PCQDA_Test, PCQDA_T
 ```r
 library(JSDNE)
 data(RawData)
-`````
+```
 
 All of the data preparation and anlysis in the source code_Manuscript could be re-runed. For example, 
 
-``` r
+```r
 PCQDA_data <-
   subset(
     RawData,
