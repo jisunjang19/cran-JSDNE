@@ -66,6 +66,8 @@
   ⊢ 📄 [M_PCR_result.R](/R/PCR_result.R) is the M_PCR model for age estimation
   ⊢ 📄 [PCQDA_result.R](/R/PCQDA_result.R) is the PCQDA model for age estimation\
 
+📂 [inst](/inst) has the citation information of JSDNE package\
+
 📂 [Jang et al.(2024)_JAS](/Jang et al.(2024)_JAS) contains the source code of Jang et al. (2024) published at Journal of Archaeological Science\
 
 📂 [source code](/source code) contains the source code, DNE.png, and raw csv files for anlyais\
