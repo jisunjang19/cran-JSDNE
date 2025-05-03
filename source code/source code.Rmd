@@ -570,14 +570,14 @@ The results for the Southeast Asian sample (Tables 5 and 6) were compared with t
 (Jang et al. 2024b). The PCQDA model provides 64% level of accuracy with an AAD of 18.0 years, which was lower
 in accuracy and precision than the European sample (91% accuracy, AAD = 5.5 years). Considering age phase, 
 in phase 1, the Southeast Asian sample had 62% accuracy (AAD = 20.5 years), much lower than the European sample
-(98% accuracy and AAD = 5.5 years). In phase 2, both samples had high accuracy (Southeast Asian: 84% and European: 89%),
- with similar precision (AAD of Southeast Asian: 14.0 years and European: 11.5 years). In phase 3, accuracy dropped 
-significantly in the Southeast Asian sample (49%), while remaining high in the European sample (93%). In phase 4, 
-accuracy declined further, with only 33% of Southeast Asian individuals, compared to 95% in the European sample. 
-When divided into seven age cohorts, accuracy was generally above 60% but was notably lower in the 20s (45%), 40s 
-(45%) and 50s (46%) with the Southeast Asian sample. Precision levels were consistently lower in the Southeast Asian
-sample (AAD = 13.8-23.3 years). Bias was notably higher in the Southeast Asian sample, with a tendency to underestimate
-younger individuals and overestimate older individuals.
+(98% accuracy and AAD = 5.5 years). In phase 2, both samples had high accuracy (Southeast Asian: 84% and European: 
+89%), with similar precision (AAD of Southeast Asian: 14.0 years and European: 11.5 years). In phase 3, accuracy 
+dropped significantly in the Southeast Asian sample (49%), while remaining high in the European sample (93%). In 
+phase 4, accuracy declined further, with only 33% of Southeast Asian individuals, compared to 95% in the European 
+sample. When divided into seven age cohorts, accuracy was generally above 60% but was notably lower in the 20s 
+(45%), 40s (45%) and 50s (46%) with the Southeast Asian sample. Precision levels were consistently lower in the 
+Southeast Asian sample (AAD = 13.8-23.3 years). Bias was notably higher in the Southeast Asian sample, with a 
+tendency to underestimate younger individuals and overestimate older individuals.
 
 ```{r, warning = FALSE, message = FALSE}
 PCQDA_result <-
