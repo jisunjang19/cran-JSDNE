@@ -1893,6 +1893,17 @@ While multi-population models offer broader applicability, they still show lower
 approaches. These results suggest that population-specific models should be prioritised for the most reliable age 
 estimations, while multi-population models may serve as alternatives when population information is unidentified.
 
+The 3D models used in this study were reconstructed using an EinScan SP laser scanner, which provides a single-shot 
+accuracy of up to 0.05 mm. This allows for capturing high-resolution surface data suitable for curvature-based 
+morphometric analysis. However, in practice, research institutions employ a wide range of scanning technologies with
+varying resolutions, scanning principles, and reconstruction algorithms. Kotěrová et al. (2019) demonstrated that age
+estimates based on 3D models of the pubic symphysis can vary significantly depending on the scanner used, even when 
+applied to the same individuals. Such discrepancies highlight concerns regarding equipment affinity and the 
+reproducibility of virtual anthropological approaches. Despite this limitation, the JSDNE package has not yet been
+systematically evaluated for its sensitivity to differences in scanning equipment. Future research should investigate
+the impact of scanner resolution and hardware variability on the performance of JSDNE-based age estimation. Such 
+studies would improve methodological robustness, comparability across institutions, and applicability of the method
+in both forensic and archaeological contexts.
 
 ### Conclusion 
 
