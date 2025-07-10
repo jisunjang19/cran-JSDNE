@@ -111,11 +111,11 @@ could be loaded with JSDNE package. For example,
 ```r
 library(JSDNE)
 data(PCLR_Train)
-`````
+```
 
 All of the data preparation and anlysis in the source code_Manuscript could be re-runed. For example, 
 
-``` r
+```r
 model_PCQDA <- subset(PCQDA_Train, select = -c(Cluster2, Age))
 PCQDA_df <- scale(model_PCQDA)
 PCQDA_df.pca <- prcomp(PCQDA_df)
